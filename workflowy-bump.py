@@ -74,6 +74,7 @@ g = lambda m, name: m.group(name)
 i = lambda m, name: int(m.group(name))
 
 def bump(text, today=datetime.date.today()):
+  "Bump date segment in text. Main entry point into bumping logic."
   m = pattern.match(text)
   if(hasNoMatch(m)):
     return text
@@ -84,6 +85,7 @@ def bump(text, today=datetime.date.today()):
   return re.sub(r"^\S*", date, text)
 
 def bumpDate(m, date):
+  "Bump date as described in a matcher."
   date = fixYear(date)
   date = completeDate(m, date)
   date = addDate(m, date)
@@ -95,6 +97,7 @@ def bumpDate(m, date):
   return prettyDate(date, g(m,'repeatDef'))
 
 def completeDate(m, today):
+  "Convert a date fragment into a fully-specified date."
   oneday = datetime.timedelta(days=1)
   if hasNoYMDW(m):
     return today
@@ -120,6 +123,7 @@ def completeDate(m, today):
     return date
 
 def addDate(m, date):
+  "Add to the date, if the matcher calls for it."
   if g(m,'addYear'):
     date = date.replace(year=date.year + i(m,'addYear'))
   if g(m,'addMonth'):
@@ -131,6 +135,7 @@ def addDate(m, date):
   return date
 
 def repeatDate(m, date):
+  "Repeat the date, if the matcher calls for it."
 
   originalWeekday = date.weekday()
 
@@ -144,36 +149,31 @@ def repeatDate(m, date):
     date += datetime.timedelta(days=i(m,'repeatDay'))
 
   if g(m,'repeatWeekSpecial'):
-    weeks = listWeeks(originalWeekday, date)
-    idx = i(m,'repeatWeekSpecial')
-    if idx > 0:
-      idx -= 1
-    date = weeks[idx]
+    weeks = listWeeks(date.year, date.month, originalWeekday)
+    date = weeks[i(m,'repeatWeekSpecial')]
 
   return date
 
-def listWeeks(weekday, date):
-  first = date.replace(day=1)
-  weeks = []
+def listWeeks(year, month, weekday):
+  """List, for example, all Sundays in March 2013. First entry is None
+  for off-by-one error purposes."""
+  first = datetime.date(year=year, month=month, day=1)
+  weeks = [None]
   for i in range(31):
-    d = first + datetime.timedelta(days=i)
-    if (d.weekday() == weekday
-        and d.month == date.month):
-      weeks.append(d)
+    date = first + datetime.timedelta(days=i)
+    if (date.weekday() == weekday and date.month == month):
+      weeks.append(date)
   return weeks
 
 def fixYear(date):
-  if date.year > 2000:
-    return date.replace(year=date.year-2000)
-  return date
+  "Standardize representing 2013 as 13."
+  return date if date.year < 2000 else date.replace(year=date.year-2000)
 
 def addMonths(date, month):
+  "Add some months to date, and wrap year if necessary."
   totalMonths = date.month + month
   return date.replace(month=totalMonths % 12,
                       year=date.year + int(totalMonths / 12))
-
-def addDays(date, n):
-  return date + datetime.timedelta(days=n)
 
 ################################################################################
 ## bump - tests on matcher
