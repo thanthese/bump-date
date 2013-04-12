@@ -65,6 +65,7 @@ pattern = re.compile(r"""
     |(?P<repeatWeek>  \d+)w
     |(?P<repeatDay>   \d+)d?
     )
+    (:(?P<repeatWeekSpecial> -?\d+))?
   \))?
   """, re.VERBOSE)
 
@@ -86,9 +87,10 @@ def bumpDate(m, date):
   date = fixYear(date)
   date = completeDate(m, date)
   date = addDate(m, date)
-  if (hasYMD(m)
-      and hasNoAdder(m)
-      and hasAnyRepeats(m)):
+  if (hasOnlyRepeats(m)
+      or (hasYMD(m)
+          and hasNoAdder(m)
+          and hasAnyRepeats(m))):
     date = repeatDate(m, date)
   return prettyDate(date, g(m,'repeatDef'))
 
@@ -129,6 +131,9 @@ def addDate(m, date):
   return date
 
 def repeatDate(m, date):
+
+  originalWeekday = date.weekday()
+
   if g(m,'repeatYear'):
     date = date.replace(year=i(m,'year') + i(m,'repeatYear'))
   if g(m,'repeatMonth'):
@@ -137,7 +142,25 @@ def repeatDate(m, date):
     date += datetime.timedelta(weeks=i(m,'repeatWeek'))
   if g(m,'repeatDay'):
     date += datetime.timedelta(days=i(m,'repeatDay'))
+
+  if g(m,'repeatWeekSpecial'):
+    weeks = listWeeks(originalWeekday, date)
+    idx = i(m,'repeatWeekSpecial')
+    if idx > 0:
+      idx -= 1
+    date = weeks[idx]
+
   return date
+
+def listWeeks(weekday, date):
+  first = date.replace(day=1)
+  weeks = []
+  for i in range(31):
+    d = first + datetime.timedelta(days=i)
+    if (d.weekday() == weekday
+        and d.month == date.month):
+      weeks.append(d)
+  return weeks
 
 def fixYear(date):
   if date.year > 2000:
@@ -148,6 +171,9 @@ def addMonths(date, month):
   totalMonths = date.month + month
   return date.replace(month=totalMonths % 12,
                       year=date.year + int(totalMonths / 12))
+
+def addDays(date, n):
+  return date + datetime.timedelta(days=n)
 
 ################################################################################
 ## bump - tests on matcher
@@ -194,6 +220,11 @@ def hasAnyRepeats(m):
           or m.group('repeatWeek')
           or m.group('repeatDay'))
 
+def hasOnlyRepeats(m):
+  return (hasNoYMDW(m)
+          and hasNoAdder(m)
+          and hasAnyRepeats(m))
+
 ################################################################################
 ## bump - formatting
 
@@ -239,8 +270,8 @@ testCases = [
   ["repeat years", "13.03.30s(+1y)", "14.03.30u(+1y)"],
   ["repeat years", "13.03.30s(+2y)", "15.03.30m(+2y)"],
   ["repeat years", "13.12.30s(+1y) ignore", "14.12.30t(+1y) ignore"],
-  #  ["repeat only", "(+5)", "13.04.04r(+5)"],
-  #  ["repeat only", "(+1w)", "13.04.06s(+1w)"],
+  ["repeat only", "(+5)", "13.04.04r(+5)"],
+  ["repeat only", "(+1w)", "13.04.06s(+1w)"],
   ["validations", "13.03.30", "13.03.30s"],
   ["validations", "13.03.30t", "13.03.30s"],
   ["validations", "13.15.30", ERROR_MESSAGE],
@@ -277,15 +308,15 @@ testCases = [
   ["adds compound", "t+2w+1(+2) ignore", "13.04.17w(+2) ignore"],
   ["adds compound", "5+2w(+2) ignore", "13.04.19f(+2) ignore"],
   ["adds compound", "5+2m(+2) ignore", "13.06.05w(+2) ignore"],
-  ["last x of month",
+  ["nth x of month",
    "13.03.30s(+1m:-1) last saturday",
    "13.04.27s(+1m:-1) last saturday"],
-  ["last x of month",
+  ["nth x of month",
    "13.03.30s(+1m:2) second saturday",
    "13.04.13s(+1m:2) second saturday"],
-  ["last x of month",
-   "13.05.16u(+1y:2) 2nd sunday in may",
-   "14.05.18u(+1y:2) 2nd sunday in may"]]
+  ["nth x of month",
+   "13.05.12u(+1y:2) 2nd sunday in may",
+   "14.05.11u(+1y:2) 2nd sunday in may"]]
 
 def runTests():
   log = TestLog()
