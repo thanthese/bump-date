@@ -53,10 +53,14 @@ These examples assume that today's date is March 30th, 2013.
 
 ## Some subtleties
 
-A *week* is 7 days.
-A *month* is the same numeric date, the following month. (For example, the 1st of every month.)
-A *quarter* is 13 weeks. (So if you started on a Saturday you'll end on a Saturday.)
-A *year* is only touches the year. (So you'll go from December 25th to December 25th.)
+A **week** is 7 days.
+
+A **month** is the same numeric date, the following month. (For example, the 1st of
+every month.)
+
+A **quarter** is 13 weeks. (So if you started on a Saturday you'll end on a Saturday.)
+
+A **year** is only touches the year. (So you'll go from December 25th to December 25th.)
 
 ## FAQs
 
