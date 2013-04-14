@@ -51,7 +51,7 @@ These examples assume that today's date is March 30th, 2013.
     13.03.30s(+1m:2) second saturday   => 13.04.13s(+1m:2) second saturday
     13.05.12u(+1y:2) 2nd sunday in may => 14.05.11u(+1y:2) 2nd sunday in may
 
-## Some subtleties
+### Some subtleties
 
 A **week** is 7 days.
 
