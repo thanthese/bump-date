@@ -12,10 +12,10 @@ ERROR_MESSAGE = "ERROR"
 ################################################################################
 ## user IO
 
-userInput = " ".join(sys.stdin).strip()
+USER_INPUT = " ".join(sys.stdin).strip()
 
 def getUserInput():
-  return userInput
+  return USER_INPUT
 
 def sendUserOutput(text):
   print text
