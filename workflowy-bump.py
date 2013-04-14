@@ -54,27 +54,29 @@ pattern = re.compile(r"""
    (?P<day>     \d\d?)?
   ((?P<weekday> [mtwrfsu])\b)?
 
-  (\+(?P<addYear>  \d\d?)y)?
-  (\+(?P<addMonth> \d\d?)m)?
-  (\+(?P<addWeek>  \d\d?)w)?
-  (\+(?P<addDay>   \d\d?)d?\b)?
+  (\+(?P<addYear>    \d\d?)y)?
+  (\+(?P<addMonth>   \d\d?)m)?
+  (\+(?P<addWeek>    \d\d?)w)?
+  (\+(?P<addQuarter> \d\d?)q)?
+  (\+(?P<addDay>     \d\d?)d?\b)?
 
   (?P<repeatDef>\(\+
-    ((?P<repeatYear>  \d+)y
-    |(?P<repeatMonth> \d+)m
-    |(?P<repeatWeek>  \d+)w
-    |(?P<repeatDay>   \d+)d?
+    ((?P<repeatYear>    \d+)y
+    |(?P<repeatMonth>   \d+)m
+    |(?P<repeatWeek>    \d+)w
+    |(?P<repeatQuarter> \d+)q
+    |(?P<repeatDay>     \d+)d?
     )
     (:(?P<repeatWeekSpecial> -?\d+))?
   \))?
   """, re.VERBOSE)
 
-# aliases
+# aliases (poor man's DSL)
 g = lambda m, name: m.group(name)
 i = lambda m, name: int(m.group(name))
 
 def bump(text, today=datetime.date.today()):
-  "Bump date segment in text. Main entry point into bumping logic."
+  """Bump date segment in text. Main entry point."""
   m = pattern.match(text)
   if(hasNoMatch(m)):
     return text
@@ -85,10 +87,10 @@ def bump(text, today=datetime.date.today()):
   return re.sub(r"^\S*", date, text)
 
 def bumpDate(m, date):
-  "Bump date as described in a matcher."
+  """Bump date as described in a matcher."""
   date = fixYear(date)
   date = completeDate(m, date)
-  date = addDate(m, date)
+  date = addGeneric('add', m, date)
   if (hasOnlyRepeats(m)
       or (hasYMD(m)
           and hasNoAdder(m)
@@ -97,7 +99,7 @@ def bumpDate(m, date):
   return prettyDate(date, g(m,'repeatDef'))
 
 def completeDate(m, today):
-  "Convert a date fragment into a fully-specified date."
+  """Convert a date fragment into a fully-specified date."""
   oneday = datetime.timedelta(days=1)
   if hasNoYMDW(m):
     return today
@@ -122,36 +124,32 @@ def completeDate(m, today):
       date += oneday
     return date
 
-def addDate(m, date):
-  "Add to the date, if the matcher calls for it."
-  if g(m,'addYear'):
-    date = date.replace(year=date.year + i(m,'addYear'))
-  if g(m,'addMonth'):
-    date = addMonths(date, i(m,'addMonth'))
-  if g(m,'addWeek'):
-    date += datetime.timedelta(weeks=i(m,'addWeek'))
-  if g(m,'addDay'):
-    date += datetime.timedelta(days=i(m,'addDay'))
-  return date
-
 def repeatDate(m, date):
-  "Repeat the date, if the matcher calls for it."
-
+  """Repeat the date, if the matcher calls for it."""
   originalWeekday = date.weekday()
-
-  if g(m,'repeatYear'):
-    date = date.replace(year=i(m,'year') + i(m,'repeatYear'))
-  if g(m,'repeatMonth'):
-    date = addMonths(date, i(m,'repeatMonth'))
-  if g(m,'repeatWeek'):
-    date += datetime.timedelta(weeks=i(m,'repeatWeek'))
-  if g(m,'repeatDay'):
-    date += datetime.timedelta(days=i(m,'repeatDay'))
-
+  date = addGeneric('repeat', m, date)
   if g(m,'repeatWeekSpecial'):
     weeks = listWeeks(date.year, date.month, originalWeekday)
     date = weeks[i(m,'repeatWeekSpecial')]
+  return date
 
+def addGeneric(prefix, m, date):
+  """Perform all standard additions to date.
+
+  In this package there are some standard ways to add to a date. They
+  follow a naming convention with the same set of suffixes. This
+  function takes the prefix and adds to the date following that
+  convention."""
+  if g(m,prefix+'Year'):
+    date = date.replace(year=date.year + i(m,prefix+'Year'))
+  if g(m,prefix+'Month'):
+    date = addMonths(date, i(m,prefix+'Month'))
+  if g(m,prefix+'Week'):
+    date += datetime.timedelta(weeks=i(m,prefix+'Week'))
+  if g(m,prefix+'Quarter'):
+    date += datetime.timedelta(weeks=13*i(m,prefix+'Quarter'))
+  if g(m,prefix+'Day'):
+    date += datetime.timedelta(days=i(m,prefix+'Day'))
   return date
 
 def listWeeks(year, month, weekday):
@@ -166,11 +164,11 @@ def listWeeks(year, month, weekday):
   return weeks
 
 def fixYear(date):
-  "Standardize representing 2013 as 13."
+  """Standardize representing 2013 as 13."""
   return date if date.year < 2000 else date.replace(year=date.year-2000)
 
 def addMonths(date, month):
-  "Add some months to date, and wrap year if necessary."
+  """Add some months to date, and wrap year if necessary."""
   totalMonths = date.month + month
   return date.replace(month=totalMonths % 12,
                       year=date.year + int(totalMonths / 12))
@@ -209,15 +207,17 @@ def hasYMD(m):
           and m.group('year'))
 
 def hasNoAdder(m):
-  return (not m.group('addDay')
-          and not m.group('addWeek')
+  return (not m.group('addYear')
           and not m.group('addMonth')
-          and not m.group('addYear'))
+          and not m.group('addWeek')
+          and not m.group('addQuarter')
+          and not m.group('addDay'))
 
 def hasAnyRepeats(m):
   return (m.group('repeatYear')
           or m.group('repeatMonth')
           or m.group('repeatWeek')
+          or m.group('repeatQuarter')
           or m.group('repeatDay'))
 
 def hasOnlyRepeats(m):
@@ -259,6 +259,7 @@ testCases = [
   ["repeat weeks", "13.12.28s(+1w)", "14.01.04s(+1w)"],
   ["repeat weeks", "13.03.30s(+2w) ignore", "13.04.13s(+2w) ignore"],
   ["repeat weeks", "13.03.30s(+53w)", "14.04.05s(+53w)"],
+  ["repeat quarters", "13.03.30s(+1q)", "13.06.29s(+1q)"],
   ["repeat months", "13.03.01f(+1m)", "13.04.01m(+1m)"],
   ["repeat months", "13.12.01u(+1m)", "14.01.01w(+1m)"],
   ["repeat months", "13.03.30s(+1m)", "13.04.30t(+1m)"],
@@ -298,6 +299,7 @@ testCases = [
   ["adds week", "+2w", "13.04.13s"],
   ["adds week", "+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
   ["adds week", "13.03.30+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
+  ["adds quarters", "13.03.30s+1q", "13.06.29s"],
   ["adds month", "+1m", "13.04.30t"],
   ["adds month", "+2m(+1w) ignore", "13.05.30r(+1w) ignore"],
   ["adds year", "+4y(+3y)", "17.03.30r(+3y)"],
