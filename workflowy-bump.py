@@ -79,7 +79,7 @@ def bump(text, today=datetime.date.today()):
   """Bump date segment in text. Main entry point."""
   m = pattern.match(text)
   if(hasNoMatch(m)):
-    return text
+    return prettyDate(today) + " " + text
   try:
     date = bumpDate(m, today)
   except ValueError:
@@ -88,7 +88,6 @@ def bump(text, today=datetime.date.today()):
 
 def bumpDate(m, date):
   """Bump date as described in a matcher."""
-  date = fixYear(date)
   date = completeDate(m, date)
   date = addGeneric('add', m, date)
   if (hasOnlyRepeats(m)
@@ -163,10 +162,6 @@ def listWeeks(year, month, weekday):
       weeks.append(date)
   return weeks
 
-def fixYear(date):
-  """Standardize representing 2013 as 13."""
-  return date if date.year < 2000 else date.replace(year=date.year-2000)
-
 def addMonths(date, month):
   """Add some months to date, and wrap year if necessary."""
   totalMonths = date.month + month
@@ -230,7 +225,7 @@ def hasOnlyRepeats(m):
 
 def prettyDate(date, repeatDef=''):
   return ('%02d.%02d.%02d%s'
-          % (date.year, date.month, date.day,
+          % (date.year % 2000, date.month, date.day,
              prettyWeekday(date.weekday()))
           + (repeatDef or '').replace('d', ''))
 
@@ -245,6 +240,7 @@ def uglyWeekday(n):
 
 testDate = datetime.date(2013, 3, 30)
 testCases = [
+  ["insert today", "random text", "13.03.30s random text"],
   ["no-op", "13.03.30s", "13.03.30s"],
   ["no-op", "13.03.30s ignore", "13.03.30s ignore"],
   ["repeat days", "13.03.30s(+1)", "13.03.31u(+1)"],
