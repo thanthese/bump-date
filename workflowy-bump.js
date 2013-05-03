@@ -15,11 +15,6 @@
 var wfb = {}; 
 
 ////////////////////////////////////////////////////////////////////////////////
-// settings
-
-wfb.BUMP_SHORTCUT = "ctrl+w";
-
-////////////////////////////////////////////////////////////////////////////////
 // date bumping logic
 
 wfb._bumpText = function(text) {
@@ -32,10 +27,12 @@ wfb._bumpText = function(text) {
 // workspace for interfacing with workflowy's code
 wfb.workflowy = {}; 
 
+wfb.workflowy.BUMP_SHORTCUT = "ctrl+w";
+
 wfb.workflowy.bindShortcuts = function() {
     $(".editor > textarea").unbind(".wfb"); // don't attach multiple times
     $(".editor > textarea").bind("keydown.wfb", 
-                                 wfb.BUMP_SHORTCUT, 
+                                 wfb.workflowy.BUMP_SHORTCUT, 
                                  wfb.workflowy._bumpTextArea);
 };
 
