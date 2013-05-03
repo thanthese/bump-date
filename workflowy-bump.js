@@ -11,20 +11,11 @@
 // 4. In chrome, click shield in address bar to allow running insecure
 //    content on site.
 
-// main workflowy-bump namespace
-var wfb = {}; 
+var wfb = {}; // main workflowy-bump namespace
 
 ////////////////////////////////////////////////////////////////////////////////
-// date bumping logic
+// namespace for interfacing with workflowy
 
-wfb._bumpText = function(text) {
-    return "??" + text + "!!";
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// interface with workflowy
-
-// workspace for interfacing with workflowy's code
 wfb.workflowy = {}; 
 
 wfb.workflowy.BUMP_SHORTCUT = "ctrl+w";
@@ -45,6 +36,13 @@ wfb.workflowy._bumpTextArea = function() {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// load
+// date bumping logic
+
+wfb._bumpText = function(text) {
+    return "??" + text + "!!";
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// load/initialize script
 
 wfb.workflowy.bindShortcuts();
