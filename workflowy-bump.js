@@ -1,4 +1,4 @@
-//// To connect skewer to workflowy:
+//// To connect emacs skewer to workflowy:
 //
 // 1. M-x js2-mode
 //
