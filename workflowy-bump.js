@@ -46,15 +46,16 @@ wfb.test.TestLog = function() {
     this.failMessages = [];
 };
 
-wfb.test.TestLog.prototype.equal = function(got, expected, msg) {
+wfb.test.TestLog.prototype.equal = function(got, expected, group, initial) {
     if(got == expected) {
         this.passCount += 1;
         return this;
     } else {
         this.failCount += 1;
-        this.failMessages.push("  " + msg
-                               + ": Expected \"" + expected
-                               + "\" but got \"" + got + "\"");
+        this.failMessages.push(group
+                               + ": '" + initial + "' => '" + expected
+                               + "', but got '" + got + "'");
+
         return this;
     }
 };
@@ -155,10 +156,11 @@ wfb.test.runTests = function() {
     for (var testcase in tc) {
         var group = tc[testcase][0];
         var before = tc[testcase][1];
-        var after = tc[testcase][2];
+        var expected = tc[testcase][2];
         log.equal(wfb._bumpText(before, wfb.testDate),
-                  after,
-                  group + " ('" + before + "')");
+                  expected,
+                  group,
+                  before);
     }
     log.printReport();
 };
