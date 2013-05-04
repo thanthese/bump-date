@@ -73,7 +73,7 @@ wfb.test.TestLog.prototype.printReport = function() {
     this.printSummaryReport();
 };
 
-wfb.test.testDate = new Date(2013, 3-1, 30);
+wfb.test.testDate = new Date(2013, 3 - 1, 30);
 wfb.test.testcases = [
     ["insert today", "random text", "13.03.30s random text"],
     ["no-op", "13.03.30s", "13.03.30s"],
@@ -103,53 +103,54 @@ wfb.test.testcases = [
     ["repeat years", "13.03.30s(+2y)", "15.03.30m(+2y)"],
     ["repeat years", "13.12.30s(+1y) ignore", "14.12.30t(+1y) ignore"],
     ["repeat only", "(+5)", "13.04.04r(+5)"],
-    ["repeat only", "(+1w)", "13.04.06s(+1w)"],
-    ["validations", "13.03.30", "13.03.30s"],
-    ["validations", "13.03.30t", "13.03.30s"],
-    ["validations", "13.15.30", wfb.ERROR_MESSAGE],
-    ["validations", "13.03.42", wfb.ERROR_MESSAGE],
-    ["validations",
-     "13.03.30s(+1) 13.03.30s(+1) first only",
-     "13.03.31u(+1) 13.03.30s(+1) first only"],
-    ["weekday only", "t", "13.04.02t"],
-    ["weekday only", "t ", "13.04.02t "],
-    ["weekday only", "w ignore", "13.04.03w ignore"],
-    ["weekday only", "t(+2)", "13.04.02t(+2)"],
-    ["weekday only", "w(+2d) ignore", "13.04.03w(+2) ignore"],
-    ["day only", "6", "13.04.06s"],
-    ["day only", "30", "13.04.30t"],
-    ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"],
-    ["no year", "03.30", "14.03.30u"],
-    ["no year", "03.31 ignore", "13.03.31u ignore"],
-    ["no year", "03.30s", "14.03.30u"],
-    ["no year", "03.31u", "13.03.31u"],
-    ["adds day", "+4d", "13.04.03w"],
-    ["adds day", "13.03.30+4d", "13.04.03w"],
-    ["adds day", "+3 ignore", "13.04.02t ignore"],
-    ["adds day", "+3(+1) ignore", "13.04.02t(+1) ignore"],
-    ["adds week", "+2w", "13.04.13s"],
-    ["adds week", "+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
-    ["adds week", "13.03.30+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
-    ["adds quarters", "13.03.30s+1q", "13.06.29s"],
-    ["adds month", "+1m", "13.04.30t"],
-    ["adds month", "+2m(+1w) ignore", "13.05.30r(+1w) ignore"],
-    ["adds year", "+4y(+3y)", "17.03.30r(+3y)"],
-    ["adds compound", "t+2w", "13.04.16t"],
-    ["adds compound", "31u+2w", "13.04.14u"],
-    ["adds compound", "t+2d(+2) ignore", "13.04.04r(+2) ignore"],
-    ["adds compound", "t+2w(+2) ignore", "13.04.16t(+2) ignore"],
-    ["adds compound", "t+2w+1(+2) ignore", "13.04.17w(+2) ignore"],
-    ["adds compound", "5+2w(+2) ignore", "13.04.19f(+2) ignore"],
-    ["adds compound", "5+2m(+2) ignore", "13.06.05w(+2) ignore"],
-    ["nth x of month",
-     "13.03.30s(+1m:-1) last saturday",
-     "13.04.27s(+1m:-1) last saturday"],
-    ["nth x of month",
-     "13.03.30s(+1m:2) second saturday",
-     "13.04.13s(+1m:2) second saturday"],
-    ["nth x of month",
-     "13.05.12u(+1y:2) 2nd sunday in may",
-     "14.05.11u(+1y:2) 2nd sunday in may"]];
+    ["repeat only", "(+1w)", "13.04.06s(+1w)"]
+    // ["validations", "13.03.30", "13.03.30s"],
+    // ["validations", "13.03.30t", "13.03.30s"],
+    // ["validations", "13.15.30", wfb.ERROR_MESSAGE],
+    // ["validations", "13.03.42", wfb.ERROR_MESSAGE],
+    // ["validations",
+    //  "13.03.30s(+1) 13.03.30s(+1) first only",
+    //  "13.03.31u(+1) 13.03.30s(+1) first only"],
+    // ["weekday only", "t", "13.04.02t"],
+    // ["weekday only", "t ", "13.04.02t "],
+    // ["weekday only", "w ignore", "13.04.03w ignore"],
+    // ["weekday only", "t(+2)", "13.04.02t(+2)"],
+    // ["weekday only", "w(+2d) ignore", "13.04.03w(+2) ignore"],
+    // ["day only", "6", "13.04.06s"],
+    // ["day only", "30", "13.04.30t"],
+    // ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"],
+    // ["no year", "03.30", "14.03.30u"],
+    // ["no year", "03.31 ignore", "13.03.31u ignore"],
+    // ["no year", "03.30s", "14.03.30u"],
+    // ["no year", "03.31u", "13.03.31u"],
+    // ["adds day", "+4d", "13.04.03w"],
+    // ["adds day", "13.03.30+4d", "13.04.03w"],
+    // ["adds day", "+3 ignore", "13.04.02t ignore"],
+    // ["adds day", "+3(+1) ignore", "13.04.02t(+1) ignore"],
+    // ["adds week", "+2w", "13.04.13s"],
+    // ["adds week", "+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
+    // ["adds week", "13.03.30+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
+    // ["adds quarters", "13.03.30s+1q", "13.06.29s"],
+    // ["adds month", "+1m", "13.04.30t"],
+    // ["adds month", "+2m(+1w) ignore", "13.05.30r(+1w) ignore"],
+    // ["adds year", "+4y(+3y)", "17.03.30r(+3y)"],
+    // ["adds compound", "t+2w", "13.04.16t"],
+    // ["adds compound", "31u+2w", "13.04.14u"],
+    // ["adds compound", "t+2d(+2) ignore", "13.04.04r(+2) ignore"],
+    // ["adds compound", "t+2w(+2) ignore", "13.04.16t(+2) ignore"],
+    // ["adds compound", "t+2w+1(+2) ignore", "13.04.17w(+2) ignore"],
+    // ["adds compound", "5+2w(+2) ignore", "13.04.19f(+2) ignore"],
+    // ["adds compound", "5+2m(+2) ignore", "13.06.05w(+2) ignore"],
+    // ["nth x of month",
+    //  "13.03.30s(+1m:-1) last saturday",
+    //  "13.04.27s(+1m:-1) last saturday"],
+    // ["nth x of month",
+    //  "13.03.30s(+1m:2) second saturday",
+    //  "13.04.13s(+1m:2) second saturday"],
+    // ["nth x of month",
+    //  "13.05.12u(+1y:2) 2nd sunday in may",
+    //  "14.05.11u(+1y:2) 2nd sunday in may"]
+];
 
 wfb.test.runTests = function() {
     var tc = wfb.test.testcases;
@@ -158,10 +159,15 @@ wfb.test.runTests = function() {
         var group = tc[testcase][0];
         var before = tc[testcase][1];
         var expected = tc[testcase][2];
-        log.equal(wfb.bumpText(before, wfb.test.testDate),
-                  expected,
-                  group,
-                  before);
+        try {
+            log.equal(wfb.bumpText(before, wfb.test.testDate),
+                      expected,
+                      group,
+                      before);
+        } catch(e) {
+            skewer.log("Failed on '" + group + "', '" + before + "'");
+            throw e;
+        }
     }
     log.printReport();
 };
@@ -206,11 +212,15 @@ wfb.bumpText = function(text, today) {
 
     if(m.repeatDef) {
         var betterDate = wfb._prettyFormatDate(wfb._addRepeats(date, m))
-            + m.repeatDef.replace('d', '');
+                + m.repeatDef.replace('d', '');
         return text.replace(/^\S+/, betterDate);
     }
 
     return text;
+};
+
+wfb._bumpDate = function(m, today) {
+
 };
 
 wfb._addRepeats = function(date, m) {
@@ -248,24 +258,24 @@ wfb._pad2 = function(numStr) {
 wfb.date = {};
 
 wfb.date.addYears = function(date, n) {
-    return new Date(date.getYear() + n,
+    return new Date(date.getFullYear() + n,
                     date.getMonth(),
                     date.getDate());
 };
 
 wfb.date.addQuarters = function(date, n) {
-    return wfb.date.addWeeks(13 * n);
+    return wfb.date.addWeeks(date, 13 * n);
 };
 
 wfb.date.addMonths = function(date, n) {
     var totalMonths = date.getMonth() + n;
-    return new Date(date.getYear + (totalMonths / 12),
+    return new Date(date.getFullYear() + (totalMonths / 12),
                     totalMonths % 12,
                     date.getDate());
 };
 
 wfb.date.addWeeks = function(date, n) {
-    return wfb.date.addDays(7 * n);
+    return wfb.date.addDays(date, 7 * n);
 };
 
 wfb.date.addDays = function(date, n) {
@@ -276,4 +286,5 @@ wfb.date.addDays = function(date, n) {
 //// load/initialize script
 
 wfb.workflowy.bindShortcuts();
+skewer.log("****************************************");
 wfb.test.runTests();
