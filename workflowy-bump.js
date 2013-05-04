@@ -24,13 +24,14 @@ wfb.workflowy.bindShortcuts = function() {
     $(".editor > textarea").unbind(".wfb"); // don't attach multiple times
     $(".editor > textarea").bind("keydown.wfb",
                                  wfb.workflowy.BUMP_SHORTCUT,
-                                 wfb.workflowy._bumpTextArea);
+                                 wfb.workflowy.bumpTextArea);
 };
 
 wfb.workflowy._bumpTextArea = function() {
     undoredo.startOperationBatch();
     var textarea = $(this).getProject().getName().children(".content");
-    textarea.setContent(wfb._bumpText(textarea.getContentText()));
+    textarea.setContent(wfb.bumpText(textarea.getContentText(),
+                                     new Date(Date.now())));
     textarea.moveCursorToBeginning();
     undoredo.finishOperationBatch();
 };
@@ -53,8 +54,8 @@ wfb.test.TestLog.prototype.equal = function(got, expected, group, initial) {
     } else {
         this.failCount += 1;
         this.failMessages.push(group
-                               + ": '" + initial + "' => '" + expected
-                               + "', but got '" + got + "'");
+                               + ": " + initial + " => " + expected
+                               + ", but got " + got + "");
 
         return this;
     }
@@ -72,7 +73,7 @@ wfb.test.TestLog.prototype.printReport = function() {
     this.printSummaryReport();
 };
 
-// var wfb.test.testDate = datetime.date(2013, 3, 30);
+wfb.test.testDate = new Date(2013, 3-1, 30);
 wfb.test.testcases = [
     ["insert today", "random text", "13.03.30s random text"],
     ["no-op", "13.03.30s", "13.03.30s"],
@@ -157,7 +158,7 @@ wfb.test.runTests = function() {
         var group = tc[testcase][0];
         var before = tc[testcase][1];
         var expected = tc[testcase][2];
-        log.equal(wfb._bumpText(before, wfb.testDate),
+        log.equal(wfb.bumpText(before, wfb.test.testDate),
                   expected,
                   group,
                   before);
@@ -170,8 +171,56 @@ wfb.test.runTests = function() {
 
 wfb.ERROR_MESSAGE = "ERROR";
 
-wfb._bumpText = function(text) {
-    return "??" + text + "!!";
+wfb._datePattern =
+    XRegExp("^ \
+            ((?<year> \\d{2,4})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
+            ((?<month> \\d{1,2})[.])? \
+            (?<day> \\d{1,2})? \
+            (?<weekday> [mtwrfsu]\\b)? \
+            \
+            (\\+(?<addYear> \\d+)y)? \
+            (\\+(?<addQuarter> \\d+)q)? \
+            (\\+(?<addMonth> \\d+)m)? \
+            (\\+(?<addWeek> \\d+)w)? \
+            (\\+(?<addDay> \\d+)d?)? \
+            \
+            (?<repeatDef>\\( \
+            (\\+(?<repeatYear> \\d+)y)? \
+            (\\+(?<repeatQuarter> \\d+)q)? \
+            (\\+(?<repeatMonth> \\d+)m)? \
+            (\\+(?<repeatWeek> \\d+)w)? \
+            (\\+(?<repeatDay> \\d+)d?)? \
+            (:(?<repeatWeekSpecial>-?\\d+))? \
+            \\))? \
+            ", 'x');
+
+wfb.bumpText = function(text, today) {
+    var dateMatch = XRegExp.exec(text, wfb._datePattern);
+    if(wfb._noMatch(dateMatch)) {
+        return wfb._prettyFormatDate(today) + " " + text;
+    }
+
+    return "NA";
+};
+
+wfb._noMatch = function(matcher) {
+    return !matcher || matcher[0] == "";
+};
+
+wfb._prettyFormatDate = function(date) {
+    return wfb._pad2(date.getFullYear()) + "."
+        + wfb._pad2(date.getMonth() + 1) + "."
+        + wfb._pad2(date.getDate())
+        + wfb._prettyWeekday(date.getDay());
+};
+
+wfb._prettyWeekday = function(n) {
+    return {0:'u', 1:'m', 2:'t', 3:'w', 4:'r', 5:'f', 6:'s'}[n];
+};
+
+wfb._pad2 = function(numStr) {
+    var s = "0" + numStr;
+    return s[s.length-2] + s[s.length-1];
 };
 
 ////////////////////////////////////////////////////////////////////////////////
