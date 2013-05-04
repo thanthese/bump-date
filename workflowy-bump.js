@@ -173,7 +173,7 @@ wfb.ERROR_MESSAGE = "ERROR";
 
 wfb._datePattern =
     XRegExp("^ \
-            ((?<year> \\d{2,4})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
+            ((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
             ((?<month> \\d{1,2})[.])? \
             (?<day> \\d{1,2})? \
             (?<weekday> [mtwrfsu]\\b)? \
@@ -195,16 +195,35 @@ wfb._datePattern =
             ", 'x');
 
 wfb.bumpText = function(text, today) {
-    var dateMatch = XRegExp.exec(text, wfb._datePattern);
-    if(wfb._noMatch(dateMatch)) {
+    var m = XRegExp.exec(text, wfb._datePattern);
+    if(wfb._noMatch(m)) {
         return wfb._prettyFormatDate(today) + " " + text;
     }
 
-    return "NA";
+    var date = new Date(parseInt(m.year) + 2000,
+                        parseInt(m.month) - 1,
+                        parseInt(m.day));
+
+    if(m.repeatDef) {
+        var betterDate = wfb._prettyFormatDate(wfb._addRepeats(date, m))
+            + m.repeatDef.replace('d', '');
+        return text.replace(/^\S+/, betterDate);
+    }
+
+    return text;
 };
 
-wfb._noMatch = function(matcher) {
-    return !matcher || matcher[0] == "";
+wfb._addRepeats = function(date, m) {
+    if(m.repeatYear) date = wfb.date.addYears(date, parseInt(m.repeatYear));
+    if(m.repeatQuarter) date = wfb.date.addQuarters(date, parseInt(m.repeatQuarter));
+    if(m.repeatMonth) date = wfb.date.addMonths(date, parseInt(m.repeatMonth));
+    if(m.repeatWeek) date = wfb.date.addWeeks(date, parseInt(m.repeatWeek));
+    if(m.repeatDay) date = wfb.date.addDays(date, parseInt(m.repeatDay));
+    return date;
+};
+
+wfb._noMatch = function(m) {
+    return !m || m[0] == "";
 };
 
 wfb._prettyFormatDate = function(date) {
@@ -221,6 +240,36 @@ wfb._prettyWeekday = function(n) {
 wfb._pad2 = function(numStr) {
     var s = "0" + numStr;
     return s[s.length-2] + s[s.length-1];
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//// date utils
+
+wfb.date = {};
+
+wfb.date.addYears = function(date, n) {
+    return new Date(date.getYear() + n,
+                    date.getMonth(),
+                    date.getDate());
+};
+
+wfb.date.addQuarters = function(date, n) {
+    return wfb.date.addWeeks(13 * n);
+};
+
+wfb.date.addMonths = function(date, n) {
+    var totalMonths = date.getMonth() + n;
+    return new Date(date.getYear + (totalMonths / 12),
+                    totalMonths % 12,
+                    date.getDate());
+};
+
+wfb.date.addWeeks = function(date, n) {
+    return wfb.date.addDays(7 * n);
+};
+
+wfb.date.addDays = function(date, n) {
+    return new Date(date.setDate(date.getDate() + n));
 };
 
 ////////////////////////////////////////////////////////////////////////////////
