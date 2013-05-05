@@ -57,7 +57,7 @@ wfb._datePattern =
             (\\+(?<addMonth> \\d+)m)? \
             (\\+(?<addWeek> \\d+)w)? \
             (\\+(?<addDay> \\d+)d?)? \
-            )? \
+           )? \
             \
             (?<repeatDef>\\( \
             (\\+(?<repeatYear> \\d+)y)? \
@@ -86,14 +86,25 @@ wfb.bumpText = function(text, today) {
 };
 
 wfb._bumpDate = function(m, today) {
-    var date = new Date(parseInt(m.year) + 2000,
-                        parseInt(m.month) - 1,
-                        parseInt(m.day));
+    var date = wfb._getDate(m, today);
 
-    if(m.repeatDef) {
+    if((m.year && m.month && m.day && !m.addDay && m.repeatDef)
+       || (!m.year && !m.month && !m.day && !m.addDay && m.repeatDef)) {
         return wfb._addRepeats(date, m);
     }
 
+    return date;
+};
+
+wfb._getDate = function(m, today) {
+
+    if(!m.year && !m.month && !m.day && !m.weekday) {
+        return new Date(today);
+    }
+
+    var date = new Date(parseInt(m.year) + 2000,
+                        parseInt(m.month) - 1,
+                        parseInt(m.day));
     return date;
 };
 
