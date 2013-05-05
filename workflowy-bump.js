@@ -99,12 +99,17 @@ wfb._bumpDate = function(m, today) {
 wfb._getDate = function(m, today) {
 
     if(!m.year && !m.month && !m.day && !m.weekday) {
-        return new Date(today);
+        return new Date(today); // return a COPY of today
     }
 
     var date = new Date(parseInt(m.year) + 2000,
                         parseInt(m.month) - 1,
                         parseInt(m.day));
+
+    if(date.getMonth() != parseInt(m.month) - 1) {
+        throw "Invalid original date.";
+    }
+
     return date;
 };
 
@@ -240,14 +245,14 @@ wfb.test.testcases = [
     ["repeat years", "13.03.30s(+2y)", "15.03.30m(+2y)"],
     ["repeat years", "13.12.30s(+1y) ignore", "14.12.30t(+1y) ignore"],
     ["repeat only", "(+5)", "13.04.04r(+5)"],
-    ["repeat only", "(+1w)", "13.04.06s(+1w)"]
-    // ["validations", "13.03.30", "13.03.30s"],
-    // ["validations", "13.03.30t", "13.03.30s"],
-    // ["validations", "13.15.30", wfb.ERROR_MESSAGE],
-    // ["validations", "13.03.42", wfb.ERROR_MESSAGE],
-    // ["validations",
-    //  "13.03.30s(+1) 13.03.30s(+1) first only",
-    //  "13.03.31u(+1) 13.03.30s(+1) first only"],
+    ["repeat only", "(+1w)", "13.04.06s(+1w)"],
+    ["validations", "13.03.30", "13.03.30s"],
+    ["validations", "13.03.30t", "13.03.30s"],
+    ["validations", "13.15.30", wfb.ERROR_MESSAGE],
+    ["validations", "13.03.42", wfb.ERROR_MESSAGE],
+    ["validations",
+     "13.03.30s(+1) 13.03.30s(+1) first only",
+     "13.03.31u(+1) 13.03.30s(+1) first only"]
     // ["weekday only", "t", "13.04.02t"],
     // ["weekday only", "t ", "13.04.02t "],
     // ["weekday only", "w ignore", "13.04.03w ignore"],
