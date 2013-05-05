@@ -11,6 +11,9 @@
 // 4. In chrome, click shield in address bar to allow running insecure
 //    content on site.
 
+//// todos
+// - prevent keyboard shortcut from propogating
+
 var wfb = {}; // main workflowy-bump namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +37,129 @@ wfb.workflowy._bumpTextArea = function() {
                                      new Date(Date.now())));
     textarea.moveCursorToBeginning();
     undoredo.finishOperationBatch();
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//// date bumping logic
+
+wfb.ERROR_MESSAGE = "ERROR";
+
+wfb._datePattern =
+    XRegExp("^ \
+            ((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
+            ((?<month> \\d{1,2})[.])? \
+            (?<day> \\d{1,2})? \
+            (?<weekday> [mtwrfsu]\\b)? \
+            \
+            (?<addDef> \
+            (\\+(?<addYear> \\d+)y)? \
+            (\\+(?<addQuarter> \\d+)q)? \
+            (\\+(?<addMonth> \\d+)m)? \
+            (\\+(?<addWeek> \\d+)w)? \
+            (\\+(?<addDay> \\d+)d?)? \
+            )? \
+            \
+            (?<repeatDef>\\( \
+            (\\+(?<repeatYear> \\d+)y)? \
+            (\\+(?<repeatQuarter> \\d+)q)? \
+            (\\+(?<repeatMonth> \\d+)m)? \
+            (\\+(?<repeatWeek> \\d+)w)? \
+            (\\+(?<repeatDay> \\d+)d?)? \
+            (:(?<repeatWeekSpecial>-?\\d+))? \
+            \\))? \
+            ", 'x');
+
+wfb.bumpText = function(text, today) {
+    var m = XRegExp.exec(text, wfb._datePattern);
+    if(wfb._noMatch(m)) {
+        return wfb._prettyFormatDate(today) + " " + text;
+    }
+    try {
+        var date = wfb._bumpDate(m, today);
+        var prettyDate = wfb._prettyFormatDate(date)
+                + (m.repeatDef || "").replace('d', '');
+        return text.replace(/^\S+/, prettyDate);
+    } catch(e) {
+        console.log(e);
+        return wfb.ERROR_MESSAGE;
+    }
+};
+
+wfb._bumpDate = function(m, today) {
+    var date = new Date(parseInt(m.year) + 2000,
+                        parseInt(m.month) - 1,
+                        parseInt(m.day));
+
+    if(m.repeatDef) {
+        return wfb._addRepeats(date, m);
+    }
+
+    return date;
+};
+
+wfb._addRepeats = function(date, m) {
+    if(m.repeatYear) date = wfb.date.addYears(date, parseInt(m.repeatYear));
+    if(m.repeatQuarter) date = wfb.date.addQuarters(date, parseInt(m.repeatQuarter));
+    if(m.repeatMonth) date = wfb.date.addMonths(date, parseInt(m.repeatMonth));
+    if(m.repeatWeek) date = wfb.date.addWeeks(date, parseInt(m.repeatWeek));
+    if(m.repeatDay) date = wfb.date.addDays(date, parseInt(m.repeatDay));
+    return date;
+};
+
+wfb._noMatch = function(m) {
+    return !m || m[0] == "";
+};
+
+wfb._prettyFormatDate = function(date) {
+    return wfb._pad2(date.getFullYear()) + "."
+        + wfb._pad2(date.getMonth() + 1) + "."
+        + wfb._pad2(date.getDate())
+        + wfb._prettyWeekday(date.getDay());
+};
+
+wfb._prettyWeekday = function(n) {
+    return {0:'u', 1:'m', 2:'t', 3:'w', 4:'r', 5:'f', 6:'s'}[n];
+};
+
+wfb._pad2 = function(numStr) {
+    var s = "0" + numStr;
+    return s[s.length-2] + s[s.length-1];
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//// date utils
+
+wfb.date = {};
+
+wfb.date.addYears = function(date, n) {
+    return new Date(date.getFullYear() + n,
+                    date.getMonth(),
+                    date.getDate());
+};
+
+wfb.date.addQuarters = function(date, n) {
+    return wfb.date.addWeeks(date, 13 * n);
+};
+
+wfb.date.addMonths = function(date, n) {
+    var totalMonths = date.getMonth() + n;
+    var newDate = new Date(date.getFullYear() + (totalMonths / 12),
+                           totalMonths % 12,
+                           date.getDate());
+    if(date.getDate() != newDate.getDate())
+    {
+        throw "Dates don't match after adding "
+            + n + " months(s): " + date + " => " + newDate;
+    }
+    return newDate;
+};
+
+wfb.date.addWeeks = function(date, n) {
+    return wfb.date.addDays(date, 7 * n);
+};
+
+wfb.date.addDays = function(date, n) {
+    return new Date(date.setDate(date.getDate() + n));
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,9 +287,7 @@ wfb.test.runTests = function() {
         var expected = tc[testcase][2];
         try {
             log.equal(wfb.bumpText(before, wfb.test.testDate),
-                      expected,
-                      group,
-                      before);
+                      expected, group, before);
         } catch(e) {
             skewer.log("Failed on '" + group + "', '" + before + "'");
             throw e;
@@ -172,115 +296,6 @@ wfb.test.runTests = function() {
     log.printReport();
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//// date bumping logic
-
-wfb.ERROR_MESSAGE = "ERROR";
-
-wfb._datePattern =
-    XRegExp("^ \
-            ((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
-            ((?<month> \\d{1,2})[.])? \
-            (?<day> \\d{1,2})? \
-            (?<weekday> [mtwrfsu]\\b)? \
-            \
-            (\\+(?<addYear> \\d+)y)? \
-            (\\+(?<addQuarter> \\d+)q)? \
-            (\\+(?<addMonth> \\d+)m)? \
-            (\\+(?<addWeek> \\d+)w)? \
-            (\\+(?<addDay> \\d+)d?)? \
-            \
-            (?<repeatDef>\\( \
-            (\\+(?<repeatYear> \\d+)y)? \
-            (\\+(?<repeatQuarter> \\d+)q)? \
-            (\\+(?<repeatMonth> \\d+)m)? \
-            (\\+(?<repeatWeek> \\d+)w)? \
-            (\\+(?<repeatDay> \\d+)d?)? \
-            (:(?<repeatWeekSpecial>-?\\d+))? \
-            \\))? \
-            ", 'x');
-
-wfb.bumpText = function(text, today) {
-    var m = XRegExp.exec(text, wfb._datePattern);
-    if(wfb._noMatch(m)) {
-        return wfb._prettyFormatDate(today) + " " + text;
-    }
-
-    var date = new Date(parseInt(m.year) + 2000,
-                        parseInt(m.month) - 1,
-                        parseInt(m.day));
-
-    if(m.repeatDef) {
-        var betterDate = wfb._prettyFormatDate(wfb._addRepeats(date, m))
-                + m.repeatDef.replace('d', '');
-        return text.replace(/^\S+/, betterDate);
-    }
-
-    return text;
-};
-
-wfb._bumpDate = function(m, today) {
-
-};
-
-wfb._addRepeats = function(date, m) {
-    if(m.repeatYear) date = wfb.date.addYears(date, parseInt(m.repeatYear));
-    if(m.repeatQuarter) date = wfb.date.addQuarters(date, parseInt(m.repeatQuarter));
-    if(m.repeatMonth) date = wfb.date.addMonths(date, parseInt(m.repeatMonth));
-    if(m.repeatWeek) date = wfb.date.addWeeks(date, parseInt(m.repeatWeek));
-    if(m.repeatDay) date = wfb.date.addDays(date, parseInt(m.repeatDay));
-    return date;
-};
-
-wfb._noMatch = function(m) {
-    return !m || m[0] == "";
-};
-
-wfb._prettyFormatDate = function(date) {
-    return wfb._pad2(date.getFullYear()) + "."
-        + wfb._pad2(date.getMonth() + 1) + "."
-        + wfb._pad2(date.getDate())
-        + wfb._prettyWeekday(date.getDay());
-};
-
-wfb._prettyWeekday = function(n) {
-    return {0:'u', 1:'m', 2:'t', 3:'w', 4:'r', 5:'f', 6:'s'}[n];
-};
-
-wfb._pad2 = function(numStr) {
-    var s = "0" + numStr;
-    return s[s.length-2] + s[s.length-1];
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//// date utils
-
-wfb.date = {};
-
-wfb.date.addYears = function(date, n) {
-    return new Date(date.getFullYear() + n,
-                    date.getMonth(),
-                    date.getDate());
-};
-
-wfb.date.addQuarters = function(date, n) {
-    return wfb.date.addWeeks(date, 13 * n);
-};
-
-wfb.date.addMonths = function(date, n) {
-    var totalMonths = date.getMonth() + n;
-    return new Date(date.getFullYear() + (totalMonths / 12),
-                    totalMonths % 12,
-                    date.getDate());
-};
-
-wfb.date.addWeeks = function(date, n) {
-    return wfb.date.addDays(date, 7 * n);
-};
-
-wfb.date.addDays = function(date, n) {
-    return new Date(date.setDate(date.getDate() + n));
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 //// load/initialize script
