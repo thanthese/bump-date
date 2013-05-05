@@ -106,8 +106,17 @@ wfb._getDate = function(m, today) {
                         parseInt(m.month) - 1,
                         parseInt(m.day));
 
-    if(date.getMonth() != parseInt(m.month) - 1) {
+    if(m.month && date.getMonth() != parseInt(m.month) - 1) {
         throw "Invalid original date.";
+    }
+
+    if(!m.year && !m.month && !m.day && m.weekday) {
+        var d = wfb.date.addDays(today, 1);
+        while(d.getDay() != wfb._uglyWeekday(m.weekday)) {
+            console.log(d.getDay() + ", " + wfb._uglyWeekday(m.weekday));
+            d = wfb.date.addDays(d, 1);
+        }
+        return d;
     }
 
     return date;
@@ -135,6 +144,10 @@ wfb._prettyFormatDate = function(date) {
 
 wfb._prettyWeekday = function(n) {
     return {0:'u', 1:'m', 2:'t', 3:'w', 4:'r', 5:'f', 6:'s'}[n];
+};
+
+wfb._uglyWeekday = function(n) {
+    return {'u':0, 'm':1, 't':2, 'w':3, 'r':4, 'f':5, 's':6}[n];
 };
 
 wfb._pad2 = function(numStr) {
@@ -175,7 +188,8 @@ wfb.date.addWeeks = function(date, n) {
 };
 
 wfb.date.addDays = function(date, n) {
-    return new Date(date.setDate(date.getDate() + n));
+    var copyDate = new Date(date);
+    return new Date(copyDate.setDate(copyDate.getDate() + n));
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -252,12 +266,12 @@ wfb.test.testcases = [
     ["validations", "13.03.42", wfb.ERROR_MESSAGE],
     ["validations",
      "13.03.30s(+1) 13.03.30s(+1) first only",
-     "13.03.31u(+1) 13.03.30s(+1) first only"]
-    // ["weekday only", "t", "13.04.02t"],
-    // ["weekday only", "t ", "13.04.02t "],
-    // ["weekday only", "w ignore", "13.04.03w ignore"],
-    // ["weekday only", "t(+2)", "13.04.02t(+2)"],
-    // ["weekday only", "w(+2d) ignore", "13.04.03w(+2) ignore"],
+     "13.03.31u(+1) 13.03.30s(+1) first only"],
+    ["weekday only", "t", "13.04.02t"],
+    ["weekday only", "t ", "13.04.02t "],
+    ["weekday only", "w ignore", "13.04.03w ignore"],
+    ["weekday only", "t(+2)", "13.04.02t(+2)"],
+    ["weekday only", "w(+2d) ignore", "13.04.03w(+2) ignore"]
     // ["day only", "6", "13.04.06s"],
     // ["day only", "30", "13.04.30t"],
     // ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"],
