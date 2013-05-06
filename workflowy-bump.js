@@ -89,7 +89,7 @@ wfb._bumpDate = function(m, today) {
     var date = wfb._getDate(m, today);
 
     if((m.year && m.month && m.day && !m.addDay && m.repeatDef)
-       || (!m.year && !m.month && !m.day && !m.addDay && !m.weekday 
+       || (!m.year && !m.month && !m.day && !m.addDay && !m.weekday
            && m.repeatDef)) {
         return wfb._addRepeats(date, m);
     }
@@ -114,7 +114,15 @@ wfb._getDate = function(m, today) {
     if(!m.year && !m.month && !m.day && m.weekday) {
         var d = wfb.date.addDays(today, 1);
         while(d.getDay() != wfb._uglyWeekday(m.weekday)) {
-            console.log(d.getDay() + ", " + wfb._uglyWeekday(m.weekday));
+            d = wfb.date.addDays(d, 1);
+        }
+        return d;
+    }
+
+    if(!m.year && !m.month && m.day) {
+        var d = wfb.date.addDays(today, 1);
+        while(d.getDate() != parseInt(m.day)) {
+            console.log(d.getDate() + ", " + parseInt(m.day));
             d = wfb.date.addDays(d, 1);
         }
         return d;
@@ -272,10 +280,10 @@ wfb.test.testcases = [
     ["weekday only", "t ", "13.04.02t "],
     ["weekday only", "w ignore", "13.04.03w ignore"],
     ["weekday only", "t(+2)", "13.04.02t(+2)"],
-    ["weekday only", "w(+2d) ignore", "13.04.03w(+2) ignore"]
-    // ["day only", "6", "13.04.06s"],
-    // ["day only", "30", "13.04.30t"],
-    // ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"],
+    ["weekday only", "w(+2d) ignore", "13.04.03w(+2) ignore"],
+    ["day only", "6", "13.04.06s"],
+    ["day only", "30", "13.04.30t"],
+    ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"]
     // ["no year", "03.30", "14.03.30u"],
     // ["no year", "03.31 ignore", "13.03.31u ignore"],
     // ["no year", "03.30s", "14.03.30u"],
