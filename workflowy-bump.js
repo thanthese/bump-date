@@ -32,6 +32,7 @@ wfb.workflowy.bindShortcuts = function() {
                                      wfb.workflowy._bumpTextArea);
     }
     console.log("Workflowy-bump shortcuts bound.");
+    wfb.workflowy._indicateLoaded();
 };
 
 wfb.workflowy._bumpTextArea = function() {
@@ -51,6 +52,15 @@ wfb.workflowy.addShortcut = function(shortcut) {
     }
     wfb.BUMP_SHORTCUTS.push(shortcut);
     wfb.workflowy.bindShortcuts();
+};
+
+wfb.workflowy._loaded = false;
+wfb.workflowy._indicateLoaded = function() {
+    if(wfb.workflowy._loaded) return;
+    wfb.workflowy._loaded = true;
+
+    var indicatorHtml = "<div class='showCompletedButton'>workflowy-bump</div>";
+    $('#savedViewHUDButton').after(indicatorHtml);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
