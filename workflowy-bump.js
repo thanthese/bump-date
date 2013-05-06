@@ -13,13 +13,11 @@
 
 var wfb = {}; // main workflowy-bump namespace
 
-if(!skewer) skewer = console;
-
 ////////////////////////////////////////////////////////////////////////////////
 //// settings
 
 wfb.BUMP_SHORTCUT = "ctrl+w";
-wfb.testlog = skewer.log; // choose either console.log or skewer.log for output
+wfb.testlog = console.log; // choose either console.log or skewer.log for output
 wfb.runTestsOnStartup = true;
 
 ////////////////////////////////////////////////////////////////////////////////
