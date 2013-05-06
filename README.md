@@ -12,7 +12,13 @@ Available both as a bookmarklet and as a chrome extension.
 
 ### Bookmarklet
 
-Create a bookmarklet based on [this file](bookmarket.js). Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page.
+Create a bookmarklet that looks like this:
+
+```javascript
+javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
+```
+
+Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page.
 
 Note to chrome users: chrome will complain about insecure scripts. Click the shield in the address bar to allow.
 
@@ -104,16 +110,10 @@ wfb.test.runTests();
 
 ### How can I change the shortcut?
 
-First enter something like this into the console:
+Enter something like this into the console:
 
 ```javascript
-wfb.BUMP_SHORTCUT = "ctrl+w";
-```
-
-then reload the script
-
-```javascript
-wfb.workflowy.bindShortcuts();
+wfb.BUMP_SHORTCUT = "ctrl+w"; wfb.workflowy.bindShortcuts();
 ```
 
 ## Possible future work
