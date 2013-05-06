@@ -49,28 +49,28 @@ wfb.ERROR_MESSAGE = "ERROR";
 wfb.bumpText = function(text, today) {
     var datePattern =
         XRegExp("^ \
-                ((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
-                ((?<month> \\d{1,2})[.])? \
-                (?<day> \\d{1,2})? \
-                (?<weekday> [mtwrfsu]\\b)? \
-                \
-                (?<addDef> \
-                (\\+(?<addYear> \\d+)y)? \
-                (\\+(?<addQuarter> \\d+)q)? \
-                (\\+(?<addMonth> \\d+)m)? \
-                (\\+(?<addWeek> \\d+)w)? \
-                (\\+(?<addDay> \\d+)d?)? \
-               )? \
-                \
-                (?<repeatDef>\\( \
-                (\\+(?<repeatYear> \\d+)y)? \
-                (\\+(?<repeatQuarter> \\d+)q)? \
-                (\\+(?<repeatMonth> \\d+)m)? \
-                (\\+(?<repeatWeek> \\d+)w)? \
-                (\\+(?<repeatDay> \\d+)d?)? \
-                (:(?<repeatWeekSpecial>-?\\d+))? \
-                \\))? \
-                ", 'x');
+((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
+((?<month> \\d{1,2})[.])? \
+(?<day> \\d{1,2})? \
+(?<weekday> [mtwrfsu]\\b)? \
+\
+(?<addDef> \
+(\\+(?<addYear> \\d+)y)? \
+(\\+(?<addQuarter> \\d+)q)? \
+(\\+(?<addMonth> \\d+)m)? \
+(\\+(?<addWeek> \\d+)w)? \
+(\\+(?<addDay> \\d+)d?)? \
+)? \
+\
+(?<repeatDef>\\( \
+(\\+(?<repeatYear> \\d+)y)? \
+(\\+(?<repeatQuarter> \\d+)q)? \
+(\\+(?<repeatMonth> \\d+)m)? \
+(\\+(?<repeatWeek> \\d+)w)? \
+(\\+(?<repeatDay> \\d+)d?)? \
+(:(?<repeatWeekSpecial>-?\\d+))? \
+\\))? \
+", 'x');
     var m = XRegExp.exec(text, datePattern);
     if(!m || m[0] == "") {
         return wfb._prettyFormatDate(today) + " " + text;
@@ -78,7 +78,7 @@ wfb.bumpText = function(text, today) {
     try {
         var date = wfb._bumpDate(m, today);
         var prettyDate = wfb._prettyFormatDate(date)
-                + (m.repeatDef || "").replace('d', '');
+            + (m.repeatDef || "").replace('d', '');
         return text.replace(/^\S+/, prettyDate);
     } catch(e) {
         console.log(e);
@@ -372,7 +372,7 @@ wfb.test.runTests = function() {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//// load/initialize/run script
+//// load/initialize/main/run script
 
 wfb.workflowy.bindShortcuts();
 if(wfb.runTestsOnStartup) {

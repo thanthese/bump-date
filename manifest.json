@@ -1,10 +1,12 @@
 {
     "name": "workflowy-bump",
-    "version": "0.1",
+    "version": "1.0",
     "manifest_version": 2,
 
     "description": "Make working with dates in workflowy awesome.",
 
     "content_scripts": [{"matches": ["https://workflowy.com/*"],
-                         "js": ["loadthis.js"]}]
+                         "js": ["loader.js"]}],
+
+    "web_accessible_resources": ["workflowy-bump.js"]
 }
