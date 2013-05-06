@@ -100,4 +100,3 @@ So I can sort numerically.
 - make work as bookmarklet
 - make work as chrome extension
 - automatic sorting?
-
