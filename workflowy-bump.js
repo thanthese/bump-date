@@ -12,21 +12,29 @@
 //    content on site.
 
 //// todos
-// - prevent keyboard shortcut from propogating
+// - write readme
+// - make work as bookmarklet
+// - make work as chrome extension
+// - automatic sorting?
 
 var wfb = {}; // main workflowy-bump namespace
+
+////////////////////////////////////////////////////////////////////////////////
+//// settings
+
+wfb.BUMP_SHORTCUT = "ctrl+w";
+wfb.testlog = skewer.log; // choose either console.log or skewer.log for output
+wfb.runTestsOnStartup = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 //// namespace for interfacing with workflowy
 
 wfb.workflowy = {};
 
-wfb.workflowy.BUMP_SHORTCUT = "ctrl+w";
-
 wfb.workflowy.bindShortcuts = function() {
     $(".editor > textarea").unbind(".wfb"); // don't attach multiple times
     $(".editor > textarea").bind("keydown.wfb",
-                                 wfb.workflowy.BUMP_SHORTCUT,
+                                 wfb.BUMP_SHORTCUT,
                                  wfb.workflowy._bumpTextArea);
 };
 
@@ -37,6 +45,7 @@ wfb.workflowy._bumpTextArea = function() {
                                      new Date(Date.now())));
     undoredo.finishOperationBatch();
     textarea.moveCursorToBeginning();
+    return false;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +80,7 @@ wfb._datePattern =
 
 wfb.bumpText = function(text, today) {
     var m = XRegExp.exec(text, wfb._datePattern);
-    if(wfb._noMatch(m)) {
+    if(!m || m[0] == "") {
         return wfb._prettyFormatDate(today) + " " + text;
     }
     try {
@@ -88,56 +97,55 @@ wfb.bumpText = function(text, today) {
 wfb._bumpDate = function(m, today) {
     var date = wfb._getDate(m, today);
     date = wfb._addAdds(date, m);
-
     if((m.year && m.month && m.day && !m.addDef && m.repeatDef)
-       || (!m.year && !m.month && !m.day && !m.addDef && !m.weekday
-           && m.repeatDef)) {
+       || (!m.year && !m.month && !m.day && !m.weekday
+           && !m.addDef && m.repeatDef)) {
         return wfb._addRepeats(date, m);
     }
-
     return date;
 };
 
 wfb._getDate = function(m, today) {
 
-    if(!m.year && !m.month && !m.day && !m.weekday) {
-        return new Date(today); // return a COPY of today
+    if(m.year && m.month && m.day) {
+        var date = new Date(parseInt(m.year) + 2000,
+                            parseInt(m.month) - 1,
+                            parseInt(m.day));
+
+        if(date.getMonth() != parseInt(m.month) - 1) {
+            throw "Invalid original date.";
+        }
+        return date;
     }
 
-    var date = new Date(parseInt(m.year) + 2000,
-                        parseInt(m.month) - 1,
-                        parseInt(m.day));
-
-    if(m.year && m.month && m.day && date.getMonth() != parseInt(m.month) - 1) {
-        throw "Invalid original date.";
+    if(!m.year && !m.month && !m.day && !m.weekday) {
+        return today;
     }
 
     if(!m.year && !m.month && !m.day && m.weekday) {
-        var d = wfb.date.addDays(today, 1);
-        while(d.getDay() != wfb._uglyWeekday(m.weekday)) {
-            d = wfb.date.addDays(d, 1);
+        var date = wfb.date.addDays(today, 1);
+        while(date.getDay() != wfb._uglyWeekday(m.weekday)) {
+            date = wfb.date.addDays(date, 1);
         }
-        return d;
+        return date;
     }
 
     if(!m.year && !m.month && m.day) {
-        var d = wfb.date.addDays(today, 1);
-        while(d.getDate() != parseInt(m.day)) {
-            d = wfb.date.addDays(d, 1);
+        var date = wfb.date.addDays(today, 1);
+        while(date.getDate() != parseInt(m.day)) {
+            date = wfb.date.addDays(date, 1);
         }
-        return d;
+        return date;
     }
 
     if(!m.year && m.month && m.day) {
-        var d = wfb.date.addDays(today, 1);
-        while(!(d.getDate() == parseInt(m.day)
-                && d.getMonth() == (parseInt(m.month) - 1))) {
-            d = wfb.date.addDays(d, 1);
+        var date = wfb.date.addDays(today, 1);
+        while(!(date.getDate() == parseInt(m.day)
+                && date.getMonth() == (parseInt(m.month) - 1))) {
+            date = wfb.date.addDays(date, 1);
         }
-        return d;
+        return date;
     }
-
-    return date;
 };
 
 wfb._addRepeats = function(date, m) {
@@ -172,15 +180,12 @@ wfb._listWeeks = function(year, month, weekday) {
     var weeks = [];
     for(var i = 1; i <= 31; ++i) {
         var date = wfb.date.addDays(first, i);
-        if(date.getDay() == wfb._uglyWeekday(weekday) && date.getMonth() == month) {
+        if(date.getDay() == wfb._uglyWeekday(weekday)
+           && date.getMonth() == month) {
             weeks.push(date);
         }
     }
     return weeks;
-};
-
-wfb._noMatch = function(m) {
-    return !m || m[0] == "";
 };
 
 wfb._prettyFormatDate = function(date) {
@@ -223,8 +228,7 @@ wfb.date.addMonths = function(date, n) {
     var newDate = new Date(date.getFullYear() + (totalMonths / 12),
                            totalMonths % 12,
                            date.getDate());
-    if(date.getDate() != newDate.getDate())
-    {
+    if(date.getDate() != newDate.getDate()) {
         throw "Dates don't match after adding "
             + n + " months(s): " + date + " => " + newDate;
     }
@@ -266,13 +270,13 @@ wfb.test.TestLog.prototype.equal = function(got, expected, group, initial) {
 };
 
 wfb.test.TestLog.prototype.printSummaryReport = function() {
-    skewer.log("Failed: " + this.failCount);
-    skewer.log("Passed: " + this.passCount);
+    wfb.testlog("Failed: " + this.failCount);
+    wfb.testlog("Passed: " + this.passCount);
 };
 
 wfb.test.TestLog.prototype.printReport = function() {
     for(var msg in this.failMessages) {
-        skewer.log(this.failMessages[msg]);
+        wfb.testlog(this.failMessages[msg]);
     }
     this.printSummaryReport();
 };
@@ -356,6 +360,7 @@ wfb.test.testcases = [
      "14.05.11u(+1y:2) 2nd sunday in may"]];
 
 wfb.test.runTests = function() {
+    wfb.testlog("****************************************");
     var tc = wfb.test.testcases;
     var log = new wfb.test.TestLog();
     for (var testcase in tc) {
@@ -366,7 +371,7 @@ wfb.test.runTests = function() {
             log.equal(wfb.bumpText(before, wfb.test.testDate),
                       expected, group, before);
         } catch(e) {
-            skewer.log("Failed on '" + group + "', '" + before + "'");
+            wfb.testlog("Failed on '" + group + "', '" + before + "'");
             throw e;
         }
     }
@@ -375,8 +380,9 @@ wfb.test.runTests = function() {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//// load/initialize script
+//// load/initialize/run script
 
 wfb.workflowy.bindShortcuts();
-skewer.log("****************************************");
-wfb.test.runTests();
+if(wfb.runTestsOnStartup) {
+    wfb.test.runTests();
+}
