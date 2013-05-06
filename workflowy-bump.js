@@ -146,6 +146,15 @@ wfb._addRepeats = function(date, m) {
     if(m.repeatMonth) date = wfb.date.addMonths(date, parseInt(m.repeatMonth));
     if(m.repeatWeek) date = wfb.date.addWeeks(date, parseInt(m.repeatWeek));
     if(m.repeatDay) date = wfb.date.addDays(date, parseInt(m.repeatDay));
+    if(m.repeatWeekSpecial) {
+        var weeks = wfb._listWeeks(date.getFullYear(), date.getMonth(), m.weekday);
+        var weekIndex = parseInt(m.repeatWeekSpecial);
+        if(weekIndex < 0) {
+            date = weeks[weeks.length + weekIndex];
+        } else {
+            date = weeks[weekIndex - 1];
+        }
+    }
     return date;
 };
 
@@ -156,6 +165,18 @@ wfb._addAdds = function(date, m) {
     if(m.addWeek) date = wfb.date.addWeeks(date, parseInt(m.addWeek));
     if(m.addDay) date = wfb.date.addDays(date, parseInt(m.addDay));
     return date;
+};
+
+wfb._listWeeks = function(year, month, weekday) {
+    var first = new Date(year, month, 1);
+    var weeks = [];
+    for(var i = 1; i <= 31; ++i) {
+        var date = wfb.date.addDays(first, i);
+        if(date.getDay() == wfb._uglyWeekday(weekday) && date.getMonth() == month) {
+            weeks.push(date);
+        }
+    }
+    return weeks;
 };
 
 wfb._noMatch = function(m) {
@@ -323,17 +344,16 @@ wfb.test.testcases = [
     ["adds compound", "t+2w(+2) ignore", "13.04.16t(+2) ignore"],
     ["adds compound", "t+2w+1(+2) ignore", "13.04.17w(+2) ignore"],
     ["adds compound", "5+2w(+2) ignore", "13.04.19f(+2) ignore"],
-    ["adds compound", "5+2m(+2) ignore", "13.06.05w(+2) ignore"]
-    // ["nth x of month",
-    //  "13.03.30s(+1m:-1) last saturday",
-    //  "13.04.27s(+1m:-1) last saturday"],
-    // ["nth x of month",
-    //  "13.03.30s(+1m:2) second saturday",
-    //  "13.04.13s(+1m:2) second saturday"],
-    // ["nth x of month",
-    //  "13.05.12u(+1y:2) 2nd sunday in may",
-    //  "14.05.11u(+1y:2) 2nd sunday in may"]
-];
+    ["adds compound", "5+2m(+2) ignore", "13.06.05w(+2) ignore"],
+    ["nth x of month",
+     "13.03.30s(+1m:-1) last saturday",
+     "13.04.27s(+1m:-1) last saturday"],
+    ["nth x of month",
+     "13.03.30s(+1m:2) second saturday",
+     "13.04.13s(+1m:2) second saturday"],
+    ["nth x of month",
+     "13.05.12u(+1y:2) 2nd sunday in may",
+     "14.05.11u(+1y:2) 2nd sunday in may"]];
 
 wfb.test.runTests = function() {
     var tc = wfb.test.testcases;
