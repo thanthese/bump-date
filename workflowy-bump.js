@@ -27,16 +27,16 @@ wfb.workflowy.bindShortcuts = function() {
     $(".editor > textarea").unbind(".wfb"); // don't attach multiple times
     $(".editor > textarea").bind("keydown.wfb",
                                  wfb.workflowy.BUMP_SHORTCUT,
-                                 wfb.workflowy.bumpTextArea);
+                                 wfb.workflowy._bumpTextArea);
 };
 
 wfb.workflowy._bumpTextArea = function() {
-    undoredo.startOperationBatch();
     var textarea = $(this).getProject().getName().children(".content");
+    undoredo.startOperationBatch();
     textarea.setContent(wfb.bumpText(textarea.getContentText(),
                                      new Date(Date.now())));
-    textarea.moveCursorToBeginning();
     undoredo.finishOperationBatch();
+    textarea.moveCursorToBeginning();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +87,7 @@ wfb.bumpText = function(text, today) {
 
 wfb._bumpDate = function(m, today) {
     var date = wfb._getDate(m, today);
+    date = wfb._addAdds(date, m);
 
     if((m.year && m.month && m.day && !m.addDay && m.repeatDef)
        || (!m.year && !m.month && !m.day && !m.addDay && !m.weekday
@@ -145,6 +146,15 @@ wfb._addRepeats = function(date, m) {
     if(m.repeatMonth) date = wfb.date.addMonths(date, parseInt(m.repeatMonth));
     if(m.repeatWeek) date = wfb.date.addWeeks(date, parseInt(m.repeatWeek));
     if(m.repeatDay) date = wfb.date.addDays(date, parseInt(m.repeatDay));
+    return date;
+};
+
+wfb._addAdds = function(date, m) {
+    if(m.addYear) date = wfb.date.addYears(date, parseInt(m.addYear));
+    if(m.addQuarter) date = wfb.date.addQuarters(date, parseInt(m.addQuarter));
+    if(m.addMonth) date = wfb.date.addMonths(date, parseInt(m.addMonth));
+    if(m.addWeek) date = wfb.date.addWeeks(date, parseInt(m.addWeek));
+    if(m.addDay) date = wfb.date.addDays(date, parseInt(m.addDay));
     return date;
 };
 
@@ -295,11 +305,11 @@ wfb.test.testcases = [
     ["no year", "03.30", "14.03.30u"],
     ["no year", "03.31 ignore", "13.03.31u ignore"],
     ["no year", "03.30s", "14.03.30u"],
-    ["no year", "03.31u", "13.03.31u"]
-    // ["adds day", "+4d", "13.04.03w"],
-    // ["adds day", "13.03.30+4d", "13.04.03w"],
-    // ["adds day", "+3 ignore", "13.04.02t ignore"],
-    // ["adds day", "+3(+1) ignore", "13.04.02t(+1) ignore"],
+    ["no year", "03.31u", "13.03.31u"],
+    ["adds day", "+4d", "13.04.03w"],
+    ["adds day", "13.03.30+4d", "13.04.03w"],
+    ["adds day", "+3 ignore", "13.04.02t ignore"],
+    ["adds day", "+3(+1) ignore", "13.04.02t(+1) ignore"]
     // ["adds week", "+2w", "13.04.13s"],
     // ["adds week", "+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
     // ["adds week", "13.03.30+3w(+1w) ignore", "13.04.20s(+1w) ignore"],
