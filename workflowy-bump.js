@@ -11,12 +11,6 @@
 // 4. In chrome, click shield in address bar to allow running insecure
 //    content on site.
 
-//// todos
-// - write readme
-// - make work as bookmarklet
-// - make work as chrome extension
-// - automatic sorting?
-
 var wfb = {}; // main workflowy-bump namespace
 
 ////////////////////////////////////////////////////////////////////////////////

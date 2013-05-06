@@ -12,11 +12,10 @@ Available both as a bookmarklet and as a chrome extension.
 
 ### Bookmarklet
 
-Drag [this bookmarket][bookmarklet] to your toolbar. Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page.
+Drag [this bookmarket](javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
+) to your toolbar. Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page.
 
 Note to chrome users: chrome will complain about insecure scripts. Click the shield in the address bar to allow.
-
-[bookmarklet]: javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
 
 ### Chrome extension
 
@@ -95,3 +94,10 @@ Because I use workflowy for everything else, why not as a calendar as well? I us
 ### Why a Year, Month, Day format?
 
 So I can sort numerically.
+
+## Possible future work
+
+- make work as bookmarklet
+- make work as chrome extension
+- automatic sorting?
+
