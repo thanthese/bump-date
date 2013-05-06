@@ -89,7 +89,8 @@ wfb._bumpDate = function(m, today) {
     var date = wfb._getDate(m, today);
 
     if((m.year && m.month && m.day && !m.addDay && m.repeatDef)
-       || (!m.year && !m.month && !m.day && !m.addDay && m.repeatDef)) {
+       || (!m.year && !m.month && !m.day && !m.addDay && !m.weekday 
+           && m.repeatDef)) {
         return wfb._addRepeats(date, m);
     }
 
