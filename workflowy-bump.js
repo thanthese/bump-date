@@ -380,3 +380,4 @@ wfb.workflowy.bindShortcuts();
 if(wfb.runTestsOnStartup) {
     wfb.test.runTests();
 }
+console.log("workflowy-bump load complete.")

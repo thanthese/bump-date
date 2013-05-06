@@ -120,5 +120,5 @@ wfb.BUMP_SHORTCUT = "ctrl+w"; wfb.workflowy.bindShortcuts();
 
 - make work as bookmarklet
 - make work as chrome extension
-- indicator that workflowy-bump loaded
+- visual indicator that workflowy-bump loaded
 - automatic sorting?
