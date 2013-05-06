@@ -59,7 +59,7 @@ wfb.workflowy._indicateLoaded = function() {
     if(wfb.workflowy._loaded) return;
     wfb.workflowy._loaded = true;
 
-    var indicatorHtml = "<div class='showCompletedButton'>workflowy-bump</div>";
+    var indicatorHtml = "<div class='saveButton' style='color:#aaa;'>bump</div>";
     $('#savedViewHUDButton').after(indicatorHtml);
 };
 
