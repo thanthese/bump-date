@@ -1,10 +1,26 @@
 ## Purpose
 
-Make working with dates in workflowy easy. Support for expanding date fragments and for repeating dates.
+Make working with dates in [workflowy](http://workflowy.com) easy. Support for expanding date fragments and for repeating dates.
 
 ## Usage
 
-It's a basic shell script: takes from `stdin`, writes to `stdout`. With no input it runs the tests and prints a report. On my system I have it hooked up to OS X's Automator using a node that transforms selected text, and bound to a shortcut.
+Hit the keyboard shortcut (default `ctrl + w`) to apply date magic to current line.
+
+## Installation
+
+Available both as a bookmarklet and as a chrome extension.
+
+### Bookmarklet
+
+Drag [this bookmarket]() to your toolbar. Click it while on workflowy to activate. The shortcut will work until you refresh the page.
+
+Note to chrome users: chrome will complain about insecure scripts. Click the shield in the address bar to allow.
+
+### Chrome extension
+
+TODO
+
+Once installed, you don't have to do anything to enable workflowy-bump on workflowy.com.
 
 ## Format
 
@@ -12,11 +28,17 @@ Dates take the form `yy.mm.ddw`. For example, April 12, 2013 would be written `1
 
 Weekdays Monday through Sunday are written: `m`, `t`, `w`, `r`, `f`, `s`, `u`.
 
+A fully-specified input would look like this: `13.04.02t+1y+1q+1m+1w+1d(+1y+1q+1m+1w+1d)`, where
+
+- `13.04.02t` is the date, here Tuesday, April 2nd, 2013.
+- `+1y+1q+1m+1w+1d` is how much to add to the current date, here 1 year, quarter, month, week, and day; this happens one time only
+- `(+1y+1q+1m+1w+1d)` defines how often this event repeats
+
 ## Examples
 
 These examples assume that today's date is March 30th, 2013.
 
-### Complete dates
+### Date completion
 
     t     => 13.04.02t
     6     => 13.04.06s
@@ -67,27 +89,6 @@ A **year** is only touches the year. (So you'll go from December 25th to Decembe
 ### Why not use a calendar app?
 
 Because I use workflowy for everything else, why not as a calendar as well? I use a [ticker](http://en.wikipedia.org/wiki/Tickler_file) system.
-
-### But why not a bookmarklet?
-
-A bookmarklet would be better: it would run faster, be more portable, and be easier to setup. Unfortunately I couldn't write the results back to workflowy. The clipboard is off-limits because of javascript security issues, and I couldn't figure out how to make workflowy accept changes made directly to the DOM.
-
-For those interested in trying to make it work, this javascript snippet will grab the text on the current line.
-
-```javascript
-$('.lastEdited')[0].innerHTML
-```
-
-Let me know if you have more luck than I did.
-
-### Why python?
-
-Because it's widely available, often installed by default, starts up fast, and has great regular expression support.
-
-
-### But why python 2.6?
-
-Because it's what came with my machine.
 
 ### Why a Year, Month, Day format?
 
