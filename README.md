@@ -118,6 +118,5 @@ wfb.BUMP_SHORTCUT = "ctrl+w"; wfb.workflowy.bindShortcuts();
 
 ## Possible future work
 
-- make work as chrome extension
 - visual indicator that workflowy-bump loaded
 - automatic sorting?
