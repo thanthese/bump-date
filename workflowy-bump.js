@@ -17,7 +17,6 @@ var wfb = {}; // main workflowy-bump namespace
 //// settings
 
 wfb.BUMP_SHORTCUT = "ctrl+w";
-wfb.testlog = console.log; // choose either console.log or skewer.log for output
 wfb.runTestsOnStartup = false;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -264,13 +263,13 @@ wfb.test.TestLog.prototype.equal = function(got, expected, group, initial) {
 };
 
 wfb.test.TestLog.prototype.printSummaryReport = function() {
-    wfb.testlog("Failed: " + this.failCount);
-    wfb.testlog("Passed: " + this.passCount);
+    console.log("Failed: " + this.failCount);
+    console.log("Passed: " + this.passCount);
 };
 
 wfb.test.TestLog.prototype.printReport = function() {
     for(var msg in this.failMessages) {
-        wfb.testlog(this.failMessages[msg]);
+        console.log(this.failMessages[msg]);
     }
     this.printSummaryReport();
 };
@@ -354,7 +353,7 @@ wfb.test.testcases = [
      "14.05.11u(+1y:2) 2nd sunday in may"]];
 
 wfb.test.runTests = function() {
-    wfb.testlog("****************************************");
+    console.log("****************************************");
     var tc = wfb.test.testcases;
     var log = new wfb.test.TestLog();
     for (var testcase in tc) {
@@ -365,7 +364,7 @@ wfb.test.runTests = function() {
             log.equal(wfb.bumpText(before, wfb.test.testDate),
                       expected, group, before);
         } catch(e) {
-            wfb.testlog("Failed on '" + group + "', '" + before + "'");
+            console.log("Failed on '" + group + "', '" + before + "'");
             throw e;
         }
     }
