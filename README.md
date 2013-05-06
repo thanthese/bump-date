@@ -20,8 +20,6 @@ javascript:(function(){var d=document;var s=d.createElement('script');s.src='htt
 
 Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page.
 
-Note to chrome users: chrome will complain about insecure scripts. Click the shield in the address bar to allow.
-
 ### Chrome extension
 
 Install this github repo as a chrome extension.
