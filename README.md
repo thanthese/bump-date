@@ -18,7 +18,7 @@ Create a bookmarklet that looks like this:
 javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
 ```
 
-Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page.
+Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page. Check for "workflowy-bump" in the workflowy toolbar.
 
 ### Chrome extension
 
