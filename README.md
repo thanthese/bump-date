@@ -12,15 +12,17 @@ Available both as a bookmarklet and as a chrome extension.
 
 ### Bookmarklet
 
-Drag [this bookmarket]() to your toolbar. Click it while on workflowy to activate. The shortcut will work until you refresh the page.
+Drag [this bookmarket][bookmarklet] to your toolbar. Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page.
 
 Note to chrome users: chrome will complain about insecure scripts. Click the shield in the address bar to allow.
+
+[bookmarklet]: javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
 
 ### Chrome extension
 
 TODO
 
-Once installed, you don't have to do anything to enable workflowy-bump on workflowy.com.
+Once installed, you don't have to do anything to enable workflowy-bump on [workflowy](http://workflowy.com).
 
 ## Format
 
@@ -31,25 +33,25 @@ Weekdays Monday through Sunday are written: `m`, `t`, `w`, `r`, `f`, `s`, `u`.
 A fully-specified input would look like this: `13.04.02t+1y+1q+1m+1w+1d(+1y+1q+1m+1w+1d)`, where
 
 - `13.04.02t` is the date, here Tuesday, April 2nd, 2013.
-- `+1y+1q+1m+1w+1d` is how much to add to the current date, here 1 year, quarter, month, week, and day; this happens one time only
+- `+1y+1q+1m+1w+1d` is how much to add to the current date,  1 year, quarter, month, week, and day. This addition happens one time only.
 - `(+1y+1q+1m+1w+1d)` defines how often this event repeats
 
 ## Examples
 
 These examples assume that today's date is March 30th, 2013.
 
-### Date completion
+### Date completion from fragments
 
-    t     => 13.04.02t
-    6     => 13.04.06s
-    03.30 => 14.03.30u
+    t              => 13.04.02t
+    6              => 13.04.06s
+    03.30          => 14.03.30u
 
 ### Add to dates
 
-    13.03.30+4d => 13.04.03w
-    +4d         => 13.04.03w
-    +2w         => 13.04.13s
-    +1m         => 13.04.30t
+    13.03.30+4d    => 13.04.03w
+    +4d            => 13.04.03w
+    +2w            => 13.04.13s
+    +1m            => 13.04.30t
 
 ### Repeat dates
 
@@ -62,10 +64,10 @@ These examples assume that today's date is March 30th, 2013.
 
 ### Combinations
 
-    31u+2w     => 13.04.14u
-    t+2d(+2)   => 13.04.04r(+2)
-    t+2w+1(+2) => 13.04.17w(+2)
-    5+2w(+2)   => 13.04.19f(+2)
+    31u+2w         => 13.04.14u
+    t+2d(+2)       => 13.04.04r(+2)
+    t+2w+1(+2)     => 13.04.17w(+2)
+    5+2w(+2)       => 13.04.19f(+2)
 
 ### nth weekday of x month
 
