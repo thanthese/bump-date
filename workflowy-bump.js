@@ -107,7 +107,7 @@ wfb._getDate = function(m, today) {
                         parseInt(m.month) - 1,
                         parseInt(m.day));
 
-    if(m.month && date.getMonth() != parseInt(m.month) - 1) {
+    if(m.year && m.month && m.day && date.getMonth() != parseInt(m.month) - 1) {
         throw "Invalid original date.";
     }
 
@@ -122,7 +122,15 @@ wfb._getDate = function(m, today) {
     if(!m.year && !m.month && m.day) {
         var d = wfb.date.addDays(today, 1);
         while(d.getDate() != parseInt(m.day)) {
-            console.log(d.getDate() + ", " + parseInt(m.day));
+            d = wfb.date.addDays(d, 1);
+        }
+        return d;
+    }
+
+    if(!m.year && m.month && m.day) {
+        var d = wfb.date.addDays(today, 1);
+        while(!(d.getDate() == parseInt(m.day)
+                && d.getMonth() == (parseInt(m.month) - 1))) {
             d = wfb.date.addDays(d, 1);
         }
         return d;
@@ -283,11 +291,11 @@ wfb.test.testcases = [
     ["weekday only", "w(+2d) ignore", "13.04.03w(+2) ignore"],
     ["day only", "6", "13.04.06s"],
     ["day only", "30", "13.04.30t"],
-    ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"]
-    // ["no year", "03.30", "14.03.30u"],
-    // ["no year", "03.31 ignore", "13.03.31u ignore"],
-    // ["no year", "03.30s", "14.03.30u"],
-    // ["no year", "03.31u", "13.03.31u"],
+    ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"],
+    ["no year", "03.30", "14.03.30u"],
+    ["no year", "03.31 ignore", "13.03.31u ignore"],
+    ["no year", "03.30s", "14.03.30u"],
+    ["no year", "03.31u", "13.03.31u"]
     // ["adds day", "+4d", "13.04.03w"],
     // ["adds day", "13.03.30+4d", "13.04.03w"],
     // ["adds day", "+3 ignore", "13.04.02t ignore"],
