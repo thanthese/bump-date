@@ -94,6 +94,28 @@ Because I use workflowy for everything else, why not as a calendar as well? I us
 
 So I can sort numerically.
 
+### How do I run the test suite?
+
+Paste this into the console:
+
+```javascript
+wfb.test.runTests();
+```
+
+### How can I change the shortcut?
+
+First enter something like this into the console:
+
+```javascript
+wfb.BUMP_SHORTCUT = "ctrl+w";
+```
+
+then reload the script
+
+```javascript
+wfb.workflowy.bindShortcuts();
+```
+
 ## Possible future work
 
 - make work as bookmarklet
