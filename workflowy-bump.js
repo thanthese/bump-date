@@ -18,7 +18,7 @@ var wfb = {}; // main workflowy-bump namespace
 
 wfb.BUMP_SHORTCUT = "ctrl+w";
 wfb.testlog = console.log; // choose either console.log or skewer.log for output
-wfb.runTestsOnStartup = true;
+wfb.runTestsOnStartup = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 //// namespace for interfacing with workflowy
@@ -380,4 +380,4 @@ wfb.workflowy.bindShortcuts();
 if(wfb.runTestsOnStartup) {
     wfb.test.runTests();
 }
-console.log("workflowy-bump load complete.")
+console.log("workflowy-bump load complete.");
