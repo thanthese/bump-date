@@ -16,7 +16,7 @@ var wfb = {}; // main workflowy-bump namespace
 ////////////////////////////////////////////////////////////////////////////////
 //// settings
 
-wfb.BUMP_SHORTCUT = "ctrl+w";
+wfb.BUMP_SHORTCUTS = ["ctrl+w", "ctrl+d"];
 wfb.runTestsOnStartup = false;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,10 +25,13 @@ wfb.runTestsOnStartup = false;
 wfb.workflowy = {};
 
 wfb.workflowy.bindShortcuts = function() {
-    $(".editor > textarea").unbind(".wfb"); // don't attach multiple times
-    $(".editor > textarea").bind("keydown.wfb",
-                                 wfb.BUMP_SHORTCUT,
-                                 wfb.workflowy._bumpTextArea);
+    $(".editor > textarea").unbind(".wfb"); // clear our existing shortcuts
+    for(var i in wfb.BUMP_SHORTCUTS) {
+        $(".editor > textarea").bind("keydown.wfb",
+                                     wfb.BUMP_SHORTCUTS[i],
+                                     wfb.workflowy._bumpTextArea);
+    }
+    console.log("Workflowy-bump shortcuts bound.");
 };
 
 wfb.workflowy._bumpTextArea = function() {
@@ -39,6 +42,15 @@ wfb.workflowy._bumpTextArea = function() {
     undoredo.finishOperationBatch();
     textarea.moveCursorToBeginning();
     return false;
+};
+
+wfb.workflowy.addShortcut = function(shortcut) {
+    if(wfb.BUMP_SHORTCUTS.indexOf(shortcut) != -1) {
+        console.log("Shortcut " + shortcut + " was already bound.");
+        return;
+    }
+    wfb.BUMP_SHORTCUTS.push(shortcut);
+    wfb.workflowy.bindShortcuts();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,4 +391,3 @@ wfb.workflowy.bindShortcuts();
 if(wfb.runTestsOnStartup) {
     wfb.test.runTests();
 }
-console.log("workflowy-bump load complete.");
