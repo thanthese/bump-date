@@ -54,11 +54,12 @@ wfb.workflowy.addShortcut = function(shortcut) {
     wfb.workflowy.bindShortcuts();
 };
 
-wfb.workflowy._loaded = false;
 wfb.workflowy._indicateLoaded = function() {
-    if(wfb.workflowy._loaded) return;
-    wfb.workflowy._loaded = true;
-
+    if(document.hasOwnProperty("workflowy_bump_loaded")) {
+        console.log("Workflowy was already loaded, no need to indicate again.");
+        return;
+    }
+    document.workflowy_bump_loaded = true;
     var indicatorHtml = "<div class='saveButton' style='color:#aaa;'>bump</div>";
     $('#savedViewHUDButton').after(indicatorHtml);
 };
