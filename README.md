@@ -92,7 +92,7 @@ A **year** is only touches the year. (So you'll go from December 25th to Decembe
 
 ### Why not use a calendar app?
 
-Because I use workflowy for everything else, why not as a calendar as well? I use a [ticker](http://en.wikipedia.org/wiki/Tickler_file) system.
+Because I use workflowy for everything else, why not as a calendar as well? I use a [tickler](http://en.wikipedia.org/wiki/Tickler_file) system.
 
 ### Why a Year, Month, Day format?
 
