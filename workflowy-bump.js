@@ -92,6 +92,10 @@ wfb._datePattern =
             ", 'x');
 
 wfb.bumpText = function(text, today) {
+    if(!today) {
+        console.log("Error: missing parameter 'today'.");
+        return wfb.ERROR_MESSAGE;
+    }
     var m = XRegExp.exec(text, wfb._datePattern);
     if(!m || m[0] == "") {
         return wfb._prettyFormatDate(today) + " " + text;
