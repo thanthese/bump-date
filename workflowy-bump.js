@@ -16,7 +16,7 @@ var wfb = {}; // main workflowy-bump namespace
 ////////////////////////////////////////////////////////////////////////////////
 //// settings
 
-wfb.BUMP_SHORTCUTS = ["ctrl+w", "ctrl+."];
+wfb.BUMP_SHORTCUTS = ["ctrl+w", "ctrl+m"];
 wfb.runTestsOnStartup = false;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,15 @@ wfb.workflowy.bindShortcuts = function() {
     wfb.workflowy._indicateLoaded();
 };
 
+wfb.workflowy.addShortcut = function(shortcut) {
+    if(wfb.BUMP_SHORTCUTS.indexOf(shortcut) != -1) {
+        console.log("Shortcut " + shortcut + " was already bound.");
+        return;
+    }
+    wfb.BUMP_SHORTCUTS.push(shortcut);
+    wfb.workflowy.bindShortcuts();
+};
+
 wfb.workflowy._bumpTextArea = function() {
     var textarea = $(this).getProject().getName().children(".content");
     undoredo.startOperationBatch();
@@ -43,15 +52,6 @@ wfb.workflowy._bumpTextArea = function() {
     undoredo.finishOperationBatch();
     textarea.moveCursorToBeginning();
     return false;
-};
-
-wfb.workflowy.addShortcut = function(shortcut) {
-    if(wfb.BUMP_SHORTCUTS.indexOf(shortcut) != -1) {
-        console.log("Shortcut " + shortcut + " was already bound.");
-        return;
-    }
-    wfb.BUMP_SHORTCUTS.push(shortcut);
-    wfb.workflowy.bindShortcuts();
 };
 
 wfb.workflowy._indicateLoaded = function() {
