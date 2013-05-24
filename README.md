@@ -12,7 +12,7 @@ Available as either a bookmarklet or a chrome extension. In either case, the key
 
 ### Bookmarklet
 
-Create a [bookmarklet](http://en.wikipedia.org/wiki/Bookmarklet) ([installation hint](http://en.wikipedia.org/wiki/Bookmarklet)) that looks like this:
+Create a [bookmarklet](http://en.wikipedia.org/wiki/Bookmarklet) ([installation hint](http://en.wikipedia.org/wiki/Bookmarklet#Installation)) that looks like this:
 
 ```javascript
 javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
