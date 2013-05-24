@@ -345,6 +345,7 @@ wfb.test.testcases = [
     ["day only", "30", "13.04.30t"],
     ["day only", "7(+2w) ignore", "13.04.07u(+2w) ignore"],
     ["no year", "03.30", "14.03.30u"],
+    ["no year", "08.13", "13.08.13t"],
     ["no year", "03.31 ignore", "13.03.31u ignore"],
     ["no year", "03.30s", "14.03.30u"],
     ["no year", "03.31u", "13.03.31u"],
