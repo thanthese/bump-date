@@ -4,7 +4,7 @@ Make working with dates in [workflowy](http://workflowy.com) easy. Support for e
 
 ## Usage
 
-Hit the keyboard shortcut (default `ctrl + w` or `ctrl + m`) to apply date magic to current line.
+Hit the keyboard shortcut (indicated in workflowy's menu bar) to apply date magic to the current line.
 
 ## Installation
 
@@ -105,15 +105,3 @@ Paste this into the console:
 ```javascript
 wfb.test.runTests();
 ```
-
-### How can I change the shortcut?
-
-You can add a shortcut by entering something like this into the console.
-
-```javascript
-wfb.workflowy.addShortcut("ctrl+w");
-```
-
-## Possible future work
-
-- automatic sorting?

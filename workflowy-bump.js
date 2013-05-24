@@ -16,7 +16,8 @@ var wfb = {}; // main workflowy-bump namespace
 ////////////////////////////////////////////////////////////////////////////////
 //// settings
 
-wfb.BUMP_SHORTCUTS = ["ctrl+w", "ctrl+m"];
+wfb.MAC_SHORTCUT = "ctrl+w";
+wfb.OTHER_SHORTCUT = "ctrl+d";
 wfb.runTestsOnStartup = false;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,22 +27,20 @@ wfb.workflowy = {};
 
 wfb.workflowy.bindShortcuts = function() {
     $(".editor > textarea").unbind(".wfb"); // clear our existing shortcuts
-    for(var i in wfb.BUMP_SHORTCUTS) {
-        $(".editor > textarea").bind("keydown.wfb",
-                                     wfb.BUMP_SHORTCUTS[i],
-                                     wfb.workflowy._bumpTextArea);
-    }
-    console.log("Workflowy-bump shortcuts bound.");
+    $(".editor > textarea").bind("keydown.wfb",
+                                 wfb.workflowy._getShortcutKey(),
+                                 wfb.workflowy._bumpTextArea);
     wfb.workflowy._indicateLoaded();
+    console.log("Workflowy-bump loaded.");
 };
 
-wfb.workflowy.addShortcut = function(shortcut) {
-    if(wfb.BUMP_SHORTCUTS.indexOf(shortcut) != -1) {
-        console.log("Shortcut " + shortcut + " was already bound.");
-        return;
-    }
-    wfb.BUMP_SHORTCUTS.push(shortcut);
-    wfb.workflowy.bindShortcuts();
+wfb.workflowy._getShortcutKey = function() {
+    if(navigator.appVersion.indexOf("Mac") != -1) return wfb.MAC_SHORTCUT;
+    return wfb.OTHER_SHORTCUT;
+};
+
+wfb.workflowy._prettifyShortcutKey = function(text) {
+    return text.replace("+", " + ");
 };
 
 wfb.workflowy._bumpTextArea = function() {
@@ -55,12 +54,10 @@ wfb.workflowy._bumpTextArea = function() {
 };
 
 wfb.workflowy._indicateLoaded = function() {
-    if(document.hasOwnProperty("workflowy_bump_loaded")) {
-        console.log("Workflowy was already loaded, no need to indicate again.");
-        return;
-    }
-    document.workflowy_bump_loaded = true;
-    var indicatorHtml = "<div class='saveButton' style='color:#aaa;'>bump</div>";
+    $('#workflowy-bump-indicator').remove();
+    var indicatorHtml = "<div id='workflowy-bump-indicator' class='saveButton' style='color:#aaa;'>"
+            + wfb.workflowy._prettifyShortcutKey(wfb.workflowy._getShortcutKey())
+            + "</div>";
     $('#savedViewHUDButton').after(indicatorHtml);
 };
 
