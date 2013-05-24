@@ -4,27 +4,25 @@ Make working with dates in [workflowy](http://workflowy.com) easy. Support for e
 
 ## Usage
 
-Hit the keyboard shortcut (indicated in workflowy's menu bar) to apply date magic to the current line.
+Hit the keyboard shortcut to apply date magic to the current line.
 
 ## Installation
 
-Available both as a bookmarklet and as a chrome extension.
+Available as either a bookmarklet or a chrome extension. In either case, the keyboard shortcut will appear in workflowy's toolbar to indicate that workflowy-bump is active.
 
 ### Bookmarklet
 
-Create a bookmarklet that looks like this:
+Create a [bookmarklet](http://en.wikipedia.org/wiki/Bookmarklet) ([installation hint](http://en.wikipedia.org/wiki/Bookmarklet)) that looks like this:
 
 ```javascript
 javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
 ```
 
-Click it while on [workflowy](http://workflowy.com) to activate. The shortcut will work until you refresh the page. Check for "bump" in the workflowy toolbar.
+Go to bookmarklet while on [workflowy](http://workflowy.com) to activate. 
 
 ### Chrome extension
 
-Install this github repo as a chrome extension.
-
-Once installed, you don't have to do anything to enable workflowy-bump on [workflowy](http://workflowy.com).
+Install this github repo as a chrome extension. Because I'm lazy and haven't packaged this up as a true chrome plugin, you'll have to [install it in developer mode](http://developer.chrome.com/extensions/getstarted.html#unpacked).
 
 ## Format
 
