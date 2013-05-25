@@ -30,7 +30,7 @@ Dates take the form `yy.mm.ddw`. For example, April 12, 2013 would be written `1
 
 Weekdays Monday through Sunday are written: `m`, `t`, `w`, `r`, `f`, `s`, `u`.
 
-A fully-specified input would look like this: `13.04.02t+1y+1q+1m+1w+1d(+1y+1q+1m+1w+1d)`, where
+A fully-specified (and terrifying and impractical) input would look like this: `13.04.02t+1y+1q+1m+1w+1d(+1y+1q+1m+1w+1d)`, where
 
 - `13.04.02t` is the date, here Tuesday, April 2nd, 2013.
 - `+1y+1q+1m+1w+1d` is how much to add to the current date,  1 year, quarter, month, week, and day. This addition happens one time only.
@@ -84,11 +84,11 @@ every month.)
 
 A **quarter** is 13 weeks. (So if you started on a Saturday you'll end on a Saturday.)
 
-A **year** is only touches the year. (So you'll go from December 25th to December 25th.)
+A **year** only touches the year. (So you'll go from December 25th to December 25th.)
 
 ## Browser compatibility
 
-Safari is weird. In older versions it hangs, and in newer versions it breaks on some dates. I'm not especially worried about fixing it because both chrome and firefox are better browser options.
+Safari is weird. In older versions it hangs, and in newer versions it breaks on some dates. I'm not especially worried about fixing it because both [chrome](https://www.google.com/intl/en/chrome/browser/) and [firefox](http://www.mozilla.org/en-US/firefox/new/) are better browser options.
 
 If you manage to find a solution for Safari, please send me a pull request.
 
@@ -109,3 +109,7 @@ Paste this into the console:
 ```javascript
 wfb.test.runTests();
 ```
+
+### What license is this?
+
+MIT, I'm not responsible for faulty software, blah blah blah. Also, let me know if you make any cool additions.
