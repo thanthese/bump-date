@@ -4,7 +4,7 @@ Make working with dates in [workflowy](http://workflowy.com) easy. Support for e
 
 ## Usage
 
-Hit the keyboard shortcut to apply date magic to the current line.
+Use keyboard shortcut to apply date magic to the current line.
 
 ## Installation
 
