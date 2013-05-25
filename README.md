@@ -86,6 +86,10 @@ A **quarter** is 13 weeks. (So if you started on a Saturday you'll end on a Satu
 
 A **year** is only touches the year. (So you'll go from December 25th to December 25th.)
 
+## Browser compatibility
+
+There are some weirdnesses with Safari. In some versions it randomly hangs, and in other versions it breaks on some dates. I'm not especially worried about fixing it because chrome and firefox are better. If you fix it for Safari, send me a pull request.
+
 ## FAQs
 
 ### Why not use a calendar app?
