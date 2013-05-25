@@ -88,7 +88,9 @@ A **year** is only touches the year. (So you'll go from December 25th to Decembe
 
 ## Browser compatibility
 
-There are some weirdnesses with Safari. In some versions it randomly hangs, and in other versions it breaks on some dates. I'm not especially worried about fixing it because chrome and firefox are better. If you fix it for Safari, send me a pull request.
+Safari is weird. In older versions it hangs, and in newer versions it breaks on some dates. I'm not especially worried about fixing it because both chrome and firefox are better browser options.
+
+If you manage to find a solution for Safari, please send me a pull request.
 
 ## FAQs
 
