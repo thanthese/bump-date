@@ -19,6 +19,7 @@ var wfb = {}; // main workflowy-bump namespace
 wfb.MAC_SHORTCUT = "ctrl+w";
 wfb.OTHER_SHORTCUT = "ctrl+d";
 wfb.runTestsOnStartup = false;
+wfb.loggingEnabled = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 //// namespace for interfacing with workflowy
@@ -92,12 +93,14 @@ wfb._datePattern =
             ", 'x');
 
 wfb.bumpText = function(text, today) {
+    wfb.log("Bumping text \"" + text + "\" for date " + today);
     if(!today) {
         console.log("Error: missing parameter 'today'.");
         return wfb.ERROR_MESSAGE;
     }
     var m = XRegExp.exec(text, wfb._datePattern);
     if(!m || m[0] == "") {
+        wfb.log("No regex match found.");
         return wfb._prettyFormatDate(today) + " " + text;
     }
     try {
@@ -113,33 +116,49 @@ wfb.bumpText = function(text, today) {
 
 wfb._bumpDate = function(m, today) {
     var date = wfb._getDate(m, today);
+    wfb.log("The gotten date is " + date);
     date = wfb._addAdds(date, m);
+    wfb.log("Date after adding adds is " + date);
     if((m.year && m.month && m.day && !m.addDef && m.repeatDef)
        || (!m.year && !m.month && !m.day && !m.weekday
            && !m.addDef && m.repeatDef)) {
-        return wfb._addRepeats(date, m);
+        date = wfb._addRepeats(date, m);
+        wfb.log("The date after adding repeats is " + date);
+        return date;
     }
+    wfb.log("The date had no repeats");
     return date;
 };
 
 wfb._getDate = function(m, today) {
 
-    if(m.year && m.month && m.day) {
-        var date = new Date(parseInt(m.year) + 2000,
-                            parseInt(m.month) - 1,
-                            parseInt(m.day));
+    wfb.log("Getting date where today is " + today);
 
-        if(date.getMonth() != parseInt(m.month) - 1) {
+    if(m.year && m.month && m.day) {
+        wfb.log("Year, month, and day found: "
+                + m.year + ", " + m.month + ", " + m.day);
+        var date = new Date(parseInt(m.year, 10) + 2000,
+                            parseInt(m.month, 10) - 1,
+                            parseInt(m.day, 10));
+
+        if(date.getMonth() != parseInt(m.month, 10) - 1) {
+            wfb.log("It thinks parsed the user's date to  " + date);
+            wfb.log("...based on " + m.year + ", " + m.month + ", " + m.day);
+            wfb.log("date.getMonth() is " + date.getMonth()
+                    + " != "
+                    + "parseInt(m.month, 10) - 1 is " + (parseInt(m.month, 10) - 1));
             throw "Invalid original date.";
         }
         return date;
     }
 
     if(!m.year && !m.month && !m.day && !m.weekday) {
+        wfb.log("No part of the date defined; returning today");
         return today;
     }
 
     if(!m.year && !m.month && !m.day && m.weekday) {
+        wfb.log("Weekday only defined: " + m.weekday);
         var date = wfb.date.addDays(today, 1);
         while(date.getDay() != wfb._uglyWeekday(m.weekday)) {
             date = wfb.date.addDays(date, 1);
@@ -148,17 +167,19 @@ wfb._getDate = function(m, today) {
     }
 
     if(!m.year && !m.month && m.day) {
+        wfb.log("Day only defined: " + m.day);
         var date = wfb.date.addDays(today, 1);
-        while(date.getDate() != parseInt(m.day)) {
+        while(date.getDate() != parseInt(m.day, 10)) {
             date = wfb.date.addDays(date, 1);
         }
         return date;
     }
 
     if(!m.year && m.month && m.day) {
+        wfb.log("Month and day only defined: " + m.month + ", " + m.day);
         var date = wfb.date.addDays(today, 1);
-        while(!(date.getDate() == parseInt(m.day)
-                && date.getMonth() == (parseInt(m.month) - 1))) {
+        while(!(date.getDate() == parseInt(m.day, 10)
+                && date.getMonth() == (parseInt(m.month, 10) - 1))) {
             date = wfb.date.addDays(date, 1);
         }
         return date;
@@ -166,14 +187,15 @@ wfb._getDate = function(m, today) {
 };
 
 wfb._addRepeats = function(date, m) {
-    if(m.repeatYear) date = wfb.date.addYears(date, parseInt(m.repeatYear));
-    if(m.repeatQuarter) date = wfb.date.addQuarters(date, parseInt(m.repeatQuarter));
-    if(m.repeatMonth) date = wfb.date.addMonths(date, parseInt(m.repeatMonth));
-    if(m.repeatWeek) date = wfb.date.addWeeks(date, parseInt(m.repeatWeek));
-    if(m.repeatDay) date = wfb.date.addDays(date, parseInt(m.repeatDay));
+    wfb.log("Adding repeats");
+    if(m.repeatYear) date = wfb.date.addYears(date, parseInt(m.repeatYear, 10));
+    if(m.repeatQuarter) date = wfb.date.addQuarters(date, parseInt(m.repeatQuarter, 10));
+    if(m.repeatMonth) date = wfb.date.addMonths(date, parseInt(m.repeatMonth, 10));
+    if(m.repeatWeek) date = wfb.date.addWeeks(date, parseInt(m.repeatWeek, 10));
+    if(m.repeatDay) date = wfb.date.addDays(date, parseInt(m.repeatDay, 10));
     if(m.repeatWeekSpecial) {
         var weeks = wfb._listWeeks(date.getFullYear(), date.getMonth(), m.weekday);
-        var weekIndex = parseInt(m.repeatWeekSpecial);
+        var weekIndex = parseInt(m.repeatWeekSpecial, 10);
         if(weekIndex < 0) {
             date = weeks[weeks.length + weekIndex];
         } else {
@@ -184,11 +206,11 @@ wfb._addRepeats = function(date, m) {
 };
 
 wfb._addAdds = function(date, m) {
-    if(m.addYear) date = wfb.date.addYears(date, parseInt(m.addYear));
-    if(m.addQuarter) date = wfb.date.addQuarters(date, parseInt(m.addQuarter));
-    if(m.addMonth) date = wfb.date.addMonths(date, parseInt(m.addMonth));
-    if(m.addWeek) date = wfb.date.addWeeks(date, parseInt(m.addWeek));
-    if(m.addDay) date = wfb.date.addDays(date, parseInt(m.addDay));
+    if(m.addYear) date = wfb.date.addYears(date, parseInt(m.addYear, 10));
+    if(m.addQuarter) date = wfb.date.addQuarters(date, parseInt(m.addQuarter, 10));
+    if(m.addMonth) date = wfb.date.addMonths(date, parseInt(m.addMonth, 10));
+    if(m.addWeek) date = wfb.date.addWeeks(date, parseInt(m.addWeek, 10));
+    if(m.addDay) date = wfb.date.addDays(date, parseInt(m.addDay, 10));
     return date;
 };
 
@@ -257,15 +279,27 @@ wfb.date.addWeeks = function(date, n) {
 };
 
 wfb.date.addDays = function(date, n) {
+    wfb.log("Adding n days to date: " + n + ", " + date);
     var copyDate = new Date(date);
-    return new Date(copyDate.setDate(copyDate.getDate() + n));
+    wfb.log("Copy of date is " + copyDate);
+    var newDate = new Date(copyDate.setDate(copyDate.getDate() + n));
+    wfb.log("New date is " + newDate);
+    return newDate;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+//// logging
+
+wfb.log = function(msg) {
+    if(wfb.loggingEnabled) {
+        console.log("log: " + msg);
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //// testing
 
 wfb.test = {};
-
 wfb.test.TestLog = function() {
     this.failCount = 0;
     this.passCount = 0;
