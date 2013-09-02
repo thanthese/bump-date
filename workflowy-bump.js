@@ -1,3 +1,8 @@
+//// To test on cloud 9:
+//
+// uncomment this line to include XRegExp
+// var XRegExp = require('xregexp').XRegExp;
+
 //// To connect emacs skewer to workflowy:
 //
 // 1. M-x js2-mode
@@ -27,6 +32,10 @@ wfb.loggingEnabled = false;
 wfb.workflowy = {};
 
 wfb.workflowy.bindShortcuts = function() {
+    if (typeof $ === 'undefined') {
+        console.log("Error binding shortcuts: jQuery not found");
+        return;
+    }
     $(".editor > textarea").unbind(".wfb"); // clear our existing shortcuts
     $(".editor > textarea").bind("keydown.wfb",
                                  wfb.workflowy._getShortcutKey(),
@@ -99,7 +108,7 @@ wfb.bumpText = function(text, today) {
         return wfb.ERROR_MESSAGE;
     }
     var m = XRegExp.exec(text, wfb._datePattern);
-    if(!m || m[0] == "") {
+    if(!m || m[0] === "") {
         wfb.log("No regex match found.");
         return wfb._prettyFormatDate(today) + " " + text;
     }
@@ -119,9 +128,10 @@ wfb._bumpDate = function(m, today) {
     wfb.log("The gotten date is " + date);
     date = wfb._addAdds(date, m);
     wfb.log("Date after adding adds is " + date);
-    if((m.year && m.month && m.day && !m.addDef && m.repeatDef)
-       || (!m.year && !m.month && !m.day && !m.weekday
-           && !m.addDef && m.repeatDef)) {
+    if(wfb._shouldCalcRepeats(m)) {
+        if(m.repeatWeekSpecial && date.getDate() > 15) {
+            date = wfb.date.reduceByOneWeek(date);
+        }
         date = wfb._addRepeats(date, m);
         wfb.log("The date after adding repeats is " + date);
         return date;
@@ -130,14 +140,22 @@ wfb._bumpDate = function(m, today) {
     return date;
 };
 
+wfb._shouldCalcRepeats = function(m) {
+    return (m.year && m.month && m.day && !m.addDef && m.repeatDef)
+        || (!m.year && !m.month && !m.day && !m.weekday
+            && !m.addDef && m.repeatDef);
+};
+
 wfb._getDate = function(m, today) {
 
     wfb.log("Getting date where today is " + today);
 
+    var date;
+
     if(m.year && m.month && m.day) {
         wfb.log("Year, month, and day found: "
                 + m.year + ", " + m.month + ", " + m.day);
-        var date = new Date(parseInt(m.year, 10) + 2000,
+        date = new Date(parseInt(m.year, 10) + 2000,
                             parseInt(m.month, 10) - 1,
                             parseInt(m.day, 10));
 
@@ -159,7 +177,7 @@ wfb._getDate = function(m, today) {
 
     if(!m.year && !m.month && !m.day && m.weekday) {
         wfb.log("Weekday only defined: " + m.weekday);
-        var date = wfb.date.addDays(today, 1);
+        date = wfb.date.addDays(today, 1);
         while(date.getDay() != wfb._uglyWeekday(m.weekday)) {
             date = wfb.date.addDays(date, 1);
         }
@@ -168,7 +186,7 @@ wfb._getDate = function(m, today) {
 
     if(!m.year && !m.month && m.day) {
         wfb.log("Day only defined: " + m.day);
-        var date = wfb.date.addDays(today, 1);
+        date = wfb.date.addDays(today, 1);
         while(date.getDate() != parseInt(m.day, 10)) {
             date = wfb.date.addDays(date, 1);
         }
@@ -177,7 +195,7 @@ wfb._getDate = function(m, today) {
 
     if(!m.year && m.month && m.day) {
         wfb.log("Month and day only defined: " + m.month + ", " + m.day);
-        var date = wfb.date.addDays(today, 1);
+        date = wfb.date.addDays(today, 1);
         while(!(date.getDate() == parseInt(m.day, 10)
                 && date.getMonth() == (parseInt(m.month, 10) - 1))) {
             date = wfb.date.addDays(date, 1);
@@ -287,6 +305,11 @@ wfb.date.addDays = function(date, n) {
     return newDate;
 };
 
+wfb.date.reduceByOneWeek = function(date) {
+    var copyDate = new Date(date);
+    return new Date(copyDate.setDate(copyDate.getDate() - 7));
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //// logging
 
@@ -294,7 +317,7 @@ wfb.log = function(msg) {
     if(wfb.loggingEnabled) {
         console.log("log: " + msg);
     }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //// testing
@@ -404,6 +427,12 @@ wfb.test.testcases = [
     ["nth x of month",
      "13.03.30s(+1m:-1) last saturday",
      "13.04.27s(+1m:-1) last saturday"],
+    ["nth x of month",
+     "13.08.31s(+1m:-1) last saturday bug fix",
+     "13.09.28s(+1m:-1) last saturday bug fix"],
+    ["nth x of month",
+     "13.08.03s(+1m:-1) last saturday bug fix low",
+     "13.09.28s(+1m:-1) last saturday bug fix low"],
     ["nth x of month",
      "13.03.30s(+1m:2) second saturday",
      "13.04.13s(+1m:2) second saturday"],
