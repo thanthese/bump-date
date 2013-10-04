@@ -463,7 +463,12 @@ wfb.test.runTests = function() {
 ////////////////////////////////////////////////////////////////////////////////
 //// load/initialize/main/run script
 
-wfb.workflowy.bindShortcuts();
+$(function() {
+    setTimeout(function() {
+        wfb.workflowy.bindShortcuts();
+    }, 3000);
+    console.log("Waiting to run workflowy-bump...");
+});
 if(wfb.runTestsOnStartup) {
     wfb.test.runTests();
 }
