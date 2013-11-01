@@ -1,7 +1,7 @@
 //// To test on cloud 9:
 //
 // uncomment this line to include XRegExp
-// var XRegExp = require('xregexp').XRegExp;
+var XRegExp = require('xregexp').XRegExp;
 
 //// To connect emacs skewer to workflowy:
 //
@@ -459,9 +459,33 @@ wfb.test.runTests = function() {
     log.printReport();
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//// run from command line
+
+function isRunningFromCommandLine() {
+  var firstArg = process.argv[2];
+  return firstArg == "terminal";
+}
+
+// do the normal date-bumping thing, but from stdin and to stdout
+function workFromStdin() {
+  process.stdin.resume();
+  process.stdin.on('data', bump);
+
+  function bump(data) {
+    var text = data.toString();
+    var now = new Date(Date.now());
+    console.log(wfb.bumpText(text, now));
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //// load/initialize/main/run script
+
+if(isRunningFromCommandLine()) {
+  workFromStdin();
+  return;
+}
 
 $(function() {
     setTimeout(function() {
