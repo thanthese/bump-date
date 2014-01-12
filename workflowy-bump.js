@@ -1,7 +1,7 @@
-//// To test on cloud 9:
-//
-// uncomment this line to include XRegExp
-var XRegExp = require('xregexp').XRegExp;
+// Do node.js imports only if using node.js.
+if(typeof require !== "undefined") {
+  var XRegExp = require('xregexp').XRegExp;
+}
 
 //// To connect emacs skewer to workflowy:
 //
@@ -54,6 +54,7 @@ wfb.workflowy._prettifyShortcutKey = function(text) {
 };
 
 wfb.workflowy._bumpTextArea = function() {
+    console.log("Shortcut hit, attempting to bump text area.");
     var textarea = $(this).getProject().getName().children(".content");
     undoredo.startOperationBatch();
     textarea.setContent(wfb.bumpText(textarea.getContentText(),
@@ -463,6 +464,9 @@ wfb.test.runTests = function() {
 //// run from command line
 
 function isRunningFromCommandLine() {
+  if(typeof process === "undefined") {
+    return false;
+  }
   var firstArg = process.argv[2];
   return firstArg == "terminal";
 }
