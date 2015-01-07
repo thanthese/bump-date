@@ -1,3 +1,7 @@
+// TODO Bump date might not work right if, for example, you're
+// counting the number of Fridays on a month and the month starts on a
+// Friday.
+
 //  + simple add
 // -> from date shown
 // :+ from today
@@ -17,6 +21,7 @@ bd.loggingEnabled = false;
 
 bd.ERROR_MESSAGE = "ERROR";
 
+// ["repeat days from now", "13.03.02sA->371d", "14.03.07f:+371d"],
 bd._datePattern =
     XRegExp("^ \
             ((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
@@ -33,11 +38,11 @@ bd._datePattern =
            )? \
             \
             (?<repeatDef> \
-            (->(?<repeatYear> \\d+)y)? \
-            (->(?<repeatQuarter> \\d+)q)? \
-            (->(?<repeatMonth> \\d+)m)? \
-            (->(?<repeatWeek> \\d+)w)? \
-            (->(?<repeatDay> \\d+)d)? \
+            (((?<fromGivenY>->)|(?<fromTodayY>:\\+))(?<repeatYear> \\d+)y)? \
+            (((?<fromGivenQ>->)|(?<fromTodayQ>:\\+))(?<repeatQuarter> \\d+)q)? \
+            (((?<fromGivenM>->)|(?<fromTodayM>:\\+))(?<repeatMonth> \\d+)m)? \
+            (((?<fromGivenW>->)|(?<fromTodayW>:\\+))(?<repeatWeek> \\d+)w)? \
+            (((?<fromGivenD>->)|(?<fromTodayD>:\\+))(?<repeatDay> \\d+)d)? \
             (:(?<repeatWeekSpecial>-?\\d+))? \
            )? \
             ", 'x');
@@ -87,6 +92,10 @@ bd._shouldCalcRepeats = function(m) {
 bd._getDate = function(m, today) {
 
     bd.log("Getting date where today is " + today);
+
+    if (m.fromTodayD || m.fromTodayW || m.fromTodayM || m.fromTodayQ || m.fromTodayY) {
+        return today;
+    }
 
     var date;
 
@@ -336,11 +345,11 @@ bd.test.testcases = [
     ["repeat only", "->5d", "13.04.04r->5d"],
     ["repeat only", "->1w", "13.04.06s->1w"],
 
-    // ["repeat days from now", "13.03.02s:+370", "14.03.07f:+370"],
-    // ["repeat weeks from now", "13.03.30s:+53w", "14.04.05s:+53w"],
-    // ["repeat quarters from now", "13.03.30s:+1q", "13.06.29s:+1q"],
-    // ["repeat months from now", "13.03.01f:+1m", "13.04.01m:+1m"],
-    // ["repeat years from now", "13.03.30s:+1y", "14.03.30u:+1y"],
+    ["repeat days from 'today'", "13.03.02s:+371d", "14.04.05s:+371d"],
+    ["repeat weeks from 'today'", "10.03.30s:+53w", "14.04.05s:+53w"],
+    ["repeat quarters from 'today'", "10.03.30s:+1q", "13.06.29s:+1q"],
+    ["repeat months from 'today'", "10.03.01f:+1m", "13.04.30t:+1m"],
+    ["repeat years from 'today'", "10.03.30s:+1y", "14.03.30u:+1y"],
 
     ["validations", "13.03.30", "13.03.30s"],
     ["validations", "13.03.30t", "13.03.30s"],
@@ -396,6 +405,7 @@ bd.test.testcases = [
 ];
 
 bd.test.runTests = function() {
+    console.log("");
     console.log("****************************************");
     var tc = bd.test.testcases;
     var log = new bd.test.TestLog();
