@@ -1,7 +1,3 @@
-// TODO Bump date might not work right if, for example, you're
-// counting the number of Fridays on a month and the month starts on a
-// Friday.
-
 //  + simple add
 // -> from date shown
 // :+ from today
@@ -183,7 +179,7 @@ bd._addAdds = function(date, m) {
 bd._listWeeks = function(year, month, weekday) {
     var first = new Date(year, month, 1);
     var weeks = [];
-    for (var i = 1; i <= 31; ++i) {
+    for (var i = 0; i <= 31; ++i) {
         var date = bd.date.addDays(first, i);
         if (date.getDay() == bd._uglyWeekday(weekday) && date.getMonth() == month) {
             weeks.push(date);
@@ -407,6 +403,8 @@ bd.test.testcases = [
     ["nth x of month", "13.08.03s|+1m-1s last sat bug fix low", "13.09.28s|+1m-1s last sat bug fix low"],
     ["nth x of month", "13.03.30s|+1m+2s 2nd sat", "13.04.13s|+1m+2s 2nd sat"],
     ["nth x of month", "13.05.12u|+1y+2u 2nd sunday in may", "14.05.11u|+1y+2u 2nd sunday in may"],
+    ["nth x of month", "15.01.11u|+1m+1u 1st of a month", "15.02.01u|+1m+1u 1st of a month"],
+    ["nth x of month", "15.01.06f|+1y+1f 1st of a year", "16.01.01f|+1y+1f 1st of a year"],
 ];
 
 bd.test.runTests = function() {
