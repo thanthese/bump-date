@@ -1,109 +1,105 @@
 ## Purpose
 
-Make working with dates in [workflowy](http://workflowy.com) easy. Support for expanding date fragments and for repeating dates.
+Command line tool for completing and repeating dates in a compact, human-readable format. Basically a big ball of "Do what I mean" for dates. 
 
 ## Usage
 
-Use keyboard shortcut to apply date magic to the current line.
+Operates on STDIN and STDOUT. To output the nearest Wednesday:
 
-## Installation
+    > echo "w" | node bump-date.js
+    15.01.14.w
 
-Available as either a bookmarklet or a chrome extension. In either case, the keyboard shortcut will appear in workflowy's toolbar to indicate that workflowy-bump is active.
+Intended use is to pipe a line from a text editor through the utility
+and back into the active buffer, as with Emacs' `shell-command-on-region` or Vim's `!!`.
 
-### Bookmarklet
+To run tests:
 
-Create a [bookmarklet](http://en.wikipedia.org/wiki/Bookmarklet) ([installation hint](http://en.wikipedia.org/wiki/Bookmarklet#Installation)) that looks like this:
+    node bump-date.js --test
 
-```javascript
-javascript:(function(){var d=document;var s=d.createElement('script');s.src='https://raw.github.com/thanthese/workflowy-bump/master/workflowy-bump.js';d.body.appendChild(s);})()
-```
+## Requirements
 
-Go to bookmarklet while on [workflowy](http://workflowy.com) to activate. 
+- node
+- xregexp
 
-### Chrome extension
+There aren't any installation instructions. It's just a single `.js` file -- download it and run it with [node](http://nodejs.org/).
 
-Install this github repo as a chrome extension. Because I'm lazy and haven't packaged this up as a true chrome plugin, you'll have to [install it in developer mode](http://developer.chrome.com/extensions/getstarted.html#unpacked).
+## Tutorial
 
-## Format
+The date format is `yy.mm.ddw`, with weekdays Monday through Sunday written as: `m`, `t`, `w`, `r`, `f`, `s`, `u`. "Friday, April 12, 2013" would be written `13.04.12f`. This format allows dates to be sorted numerically (`sort -n`).
 
-Dates take the form `yy.mm.ddw`. For example, April 12, 2013 would be written `13.04.12f`.
+If you give only part of the date the rest will be filled in. (These examples assume that today is March 30th, 2013.)
 
-Weekdays Monday through Sunday are written: `m`, `t`, `w`, `r`, `f`, `s`, `u`.
+    t                 => 13.04.02t
+    6                 => 13.04.06s
+    06                => 13.04.06s
+    03.30             => 14.03.30u
+    14.03.30          => 14.03.30u
+    14.03.30u         => 14.03.30u
 
-A fully-specified (and terrifying and impractical) input would look like this: `13.04.02t+1y+1q+1m+1w+1d(+1y+1q+1m+1w+1d)`, where
+Junk at the end of the line is ignored, 
 
-- `13.04.02t` is the date, here Tuesday, April 2nd, 2013.
-- `+1y+1q+1m+1w+1d` is how much to add to the current date,  1 year, quarter, month, week, and day. This addition happens one time only.
-- `(+1y+1q+1m+1w+1d)` defines how often this event repeats
+    14.03.30u foo     => 14.03.30u foo
 
-## Examples
+which lets you store a list of calendar items in a file, like this:
 
-These examples assume that today's date is March 30th, 2013.
+    15.01.12m get groceries
+    15.01.13t make a million dollars
+    15.01.14w build a Scrooge McDuck pool
 
-### Date completion from fragments
+You can set a date relative to today with the `+n` syntax, where `n` is a *d*ay, *w*eek, *m*onth, *q*uarter, or *y*ear.
 
-    t              => 13.04.02t
-    6              => 13.04.06s
-    03.30          => 14.03.30u
+    +4d               => 13.04.03w
+    +2w               => 13.04.13s
+    +1m               => 13.04.30t
 
-### Add to dates
+Or set a date relative to a specific date.
 
-    13.03.30+4d    => 13.04.03w
-    +4d            => 13.04.03w
-    +2w            => 13.04.13s
-    +1m            => 13.04.30t
+    13.03.30s+4d      => 13.04.03w
 
-### Repeat dates
+The `->` syntax is similar, but it sticks around. This makes it easy to set up and manage recurring events.
 
-    13.04.01m(+2d) => 13.04.03w(+2)
-    13.04.01m(+15) => 13.04.16t(+15)
-    13.03.30s(+1w) => 13.04.06s(+1w)
-    13.03.01f(+1m) => 13.04.01m(+1m)
-    13.03.30s(+2y) => 15.03.30m(+2y)
-    (+5)           => 13.04.04r(+5)
+    13.04.01m->2d     => 13.04.03w->2d
+    13.04.01m->15     => 13.04.16t->15
+    13.03.30s->1w     => 13.04.06s->1w
+    13.03.01f->1m     => 13.04.01m->1m
+    13.03.30s->2y     => 15.03.30m->2y
+    ->5d              => 13.04.04r->5d
 
-### Combinations
+The `:+` operator works almost the same way, but adds from **today** rather than the listed date. Use `->` for events that always happen on the same day (Monday night bowling), and `:+` for reminders you need **x** days after completing a task (even if you're 2 days late, the house still doesn't need vacuuming again for another 4 days).
 
-    31u+2w         => 13.04.14u
-    t+2d(+2)       => 13.04.04r(+2)
-    t+2w+1(+2)     => 13.04.17w(+2)
-    5+2w(+2)       => 13.04.19f(+2)
+    13.03.15f:+4d     => 13.04.03w:+4d
 
-### nth weekday of x month
+You can mix and match completion, adding, and a type of repetition.
+     
+    31u+2w            => 13.04.14u
+    t+2d->2d          => 13.04.04r->2d
+    t+2w+1->2d        => 13.04.17w->2d
+    5+2w->2d          => 13.04.19f->2d
 
-    13.03.30s(+1m:-1) last saturday    => 13.04.27s(+1m:-1) last saturday
-    13.03.30s(+1m:2) second saturday   => 13.04.13s(+1m:2) second saturday
-    13.05.12u(+1y:2) 2nd sunday in may => 14.05.11u(+1y:2) 2nd sunday in may
+The last operator, `|+`, is for those "2nd Sunday of the month" situations, like Mother's Day.
 
-### Some subtleties
+2nd Saturday of every month:
 
-A **week** is 7 days.
+    13.03.30s|+1m+2s  => 13.04.13s|+1m+2s
 
-A **month** is the same numeric date, the following month. (For example, the 1st of
-every month.)
+Last Saturday of every month:
 
-A **quarter** is 13 weeks. (So if you started on a Saturday you'll end on a Saturday.)
+    13.03.30s|+1m-1s => 13.04.27s|+1m-1s 
 
-A **year** only touches the year. (So you'll go from December 25th to December 25th.)
+2nd sunday in may:
 
-## FAQs
+    13.05.11s|+1y+2s  => 14.05.10s|+1y+2s
 
-### Why not use a calendar app?
+Some subtleties:
 
-Because I use workflowy for everything else, why not as a calendar as well? I use a [tickler](http://en.wikipedia.org/wiki/Tickler_file) system.
+- A **week** is 7 days.
 
-### Why a Year, Month, Day format?
+- A **month** is the same numeric date, the following month. (For example, the 1st of every month.)
 
-So I can sort numerically.
+- A **quarter** is 13 weeks. (So if you started on a Saturday you'll end on a Saturday.)
 
-### How do I run the test suite?
+- A **year** only touches the year. (So you'll go from December 25th to December 25th.)
 
-Paste this into the console:
+## License 
 
-```javascript
-wfb.test.runTests();
-```
-
-### What license is this?
-
-MIT, I'm not responsible for faulty software, blah blah blah. Also, let me know if you make any cool additions.
+MIT
