@@ -46,7 +46,7 @@ which lets you store a list of calendar items in a file, like this:
     15.01.13t make a million dollars
     15.01.14w build a Scrooge McDuck pool
 
-You can set a date relative to today with the `+n` syntax, where `n` is a *d*ay, *w*eek, *m*onth, *q*uarter, or *y*ear.
+You can set a date relative to today with the `+n` syntax, where `n` is a **d**ay, **w**eek, **m**onth, **q**uarter, or **y**ear.
 
     +4d               => 13.04.03w
     +2w               => 13.04.13s
@@ -65,7 +65,7 @@ The `->` syntax is similar, but it sticks around. This makes it easy to set up a
     13.03.30s->2y     => 15.03.30m->2y
     ->5d              => 13.04.04r->5d
 
-The `:+` operator works almost the same way, but adds from **today** rather than the listed date. Use `->` for events that always happen on the same day (Monday night bowling), and `:+` for reminders you need **x** days after completing a task (even if you're 2 days late, the house still doesn't need vacuuming again for another 4 days).
+The `:+` operator works almost the same way, but adds from *today* rather than the listed date. Use `->` for events that always happen on the same day (Monday night bowling), and `:+` for reminders you need *x* days after completing a task (even if you're 2 days late the house still doesn't need vacuuming again for another 4 days).
 
     13.03.15f:+4d     => 13.04.03w:+4d
 
@@ -75,6 +75,7 @@ You can mix and match completion, adding, and a type of repetition.
     t+2d->2d          => 13.04.04r->2d
     t+2w+1->2d        => 13.04.17w->2d
     5+2w->2d          => 13.04.19f->2d
+    5+2w:+2d          => 13.04.19f:+1d
 
 The last operator, `|+`, is for those "2nd Sunday of the month" situations, like Mother's Day.
 
@@ -94,11 +95,11 @@ Some subtleties:
 
 - A **week** is 7 days.
 
-- A **month** is the same numeric date, the following month. (For example, the 1st of every month.)
+- A **month** is the same numeric date the following month, like the 1st of every month.
 
-- A **quarter** is 13 weeks. (So if you started on a Saturday you'll end on a Saturday.)
+- A **quarter** is 13 weeks. If you start on a Saturday you'll end on a Saturday.
 
-- A **year** only touches the year. (So you'll go from December 25th to December 25th.)
+- A **year** only touches the year, like December 25th to December 25th.
 
 ## License 
 
