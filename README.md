@@ -18,10 +18,10 @@ To run tests:
 
 ## Requirements
 
-- node
-- xregexp
+- [node](http://nodejs.org/)
+- [xregexp](http://xregexp.com/) node package
 
-There aren't any installation instructions. It's just a single `.js` file -- download it and run it with [node](http://nodejs.org/).
+There aren't any installation instructions. It's just a single `.js` file -- download it and run it with node.
 
 ## Tutorial
 
@@ -56,7 +56,7 @@ Or set a date relative to a specific date.
 
     13.03.30s+4d      => 13.04.03w
 
-The `->` syntax is similar, but it sticks around. This makes it easy to set up and manage recurring events.
+The `->` syntax is similar to `+`, but it sticks around. This makes it easy to set up and manage recurring events.
 
     13.04.01m->2d     => 13.04.03w->2d
     13.04.01m->15     => 13.04.16t->15
