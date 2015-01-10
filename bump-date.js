@@ -21,7 +21,7 @@ bd.loggingEnabled = false;
 
 bd.ERROR_MESSAGE = "ERROR";
 
-// ["repeat days from now", "13.03.02sA->371d", "14.03.07f:+371d"],
+//"13.03.30s|+1m-1s", "13.04.27s|+1m-1s"
 bd._datePattern =
     XRegExp("^ \
             ((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
@@ -43,7 +43,7 @@ bd._datePattern =
             (((?<fromGivenM>->)|(?<fromTodayM>:\\+))(?<repeatMonth> \\d+)m)? \
             (((?<fromGivenW>->)|(?<fromTodayW>:\\+))(?<repeatWeek> \\d+)w)? \
             (((?<fromGivenD>->)|(?<fromTodayD>:\\+))(?<repeatDay> \\d+)d)? \
-            (:(?<repeatWeekSpecial>-?\\d+))? \
+            (\\|\\+ (?<rDelta>\\d+) (?<rType>[my]) (?<rNthWeek>[-|\\+]?\\d+) (?<rDay> [mtwrfsu]) )? \
            )? \
             ", 'x');
 
@@ -74,7 +74,7 @@ bd._bumpDate = function(m, today) {
     date = bd._addAdds(date, m);
     bd.log("Date after adding adds is " + date);
     if (bd._shouldCalcRepeats(m)) {
-        if (m.repeatWeekSpecial && date.getDate() > 15) {
+        if (m.rNthWeek && date.getDate() > 15) {
             date = bd.date.reduceByOneWeek(date);
         }
         date = bd._addRepeats(date, m);
@@ -154,9 +154,14 @@ bd._addRepeats = function(date, m) {
     if (m.repeatMonth) date = bd.date.addMonths(date, parseInt(m.repeatMonth, 10));
     if (m.repeatWeek) date = bd.date.addWeeks(date, parseInt(m.repeatWeek, 10));
     if (m.repeatDay) date = bd.date.addDays(date, parseInt(m.repeatDay, 10));
-    if (m.repeatWeekSpecial) {
-        var weeks = bd._listWeeks(date.getFullYear(), date.getMonth(), m.weekday);
-        var weekIndex = parseInt(m.repeatWeekSpecial, 10);
+    if (m.rNthWeek) {
+        if(m.rType === "m") {
+            date = bd.date.addMonths(date, parseInt(m.rDelta, 10));
+        } else {
+            date = bd.date.addYears(date, parseInt(m.rDelta, 10));
+        }
+        var weeks = bd._listWeeks(date.getFullYear(), date.getMonth(), m.rDay);
+        var weekIndex = parseInt(m.rNthWeek, 10);
         if (weekIndex < 0) {
             date = weeks[weeks.length + weekIndex];
         } else {
@@ -397,11 +402,11 @@ bd.test.testcases = [
     ["adds compound", "5+2w->2d ignore", "13.04.19f->2d ignore"],
     ["adds compound", "5+2m->2d ignore", "13.06.05w->2d ignore"],
 
-    // ["nth x of month", "13.03.30s|+1m-1s last saturday", "13.04.27s|+1m-1s last saturday"],
-    // ["nth x of month", "13.08.31s|+1m-1s last saturday bug fix", "13.09.28s|+1m-1s last saturday bug fix"],
-    // ["nth x of month", "13.08.03s|+1m-1s last saturday bug fix low", "13.09.28s|+1m-1s last saturday bug fix low"],
-    // ["nth x of month", "13.03.30s|+1m+2s second saturday", "13.04.13s|+1m+2s second saturday"],
-    // ["nth x of month", "13.05.12u|+1y+2u 2nd sunday in may", "14.05.11u|+1y+2u 2nd sunday in may"],
+    ["nth x of month", "13.03.30s|+1m-1s last sat", "13.04.27s|+1m-1s last sat"],
+    ["nth x of month", "13.08.31s|+1m-1s last sat bug fix", "13.09.28s|+1m-1s last sat bug fix"],
+    ["nth x of month", "13.08.03s|+1m-1s last sat bug fix low", "13.09.28s|+1m-1s last sat bug fix low"],
+    ["nth x of month", "13.03.30s|+1m+2s 2nd sat", "13.04.13s|+1m+2s 2nd sat"],
+    ["nth x of month", "13.05.12u|+1y+2u 2nd sunday in may", "14.05.11u|+1y+2u 2nd sunday in may"],
 ];
 
 bd.test.runTests = function() {
@@ -435,7 +440,7 @@ function main() {
     function bump(data) {
         var text = data.toString();
         var now = new Date(Date.now());
-        console.log(bd.bumpText(text, now));
+        process.stdout.write(bd.bumpText(text, now));
     }
 }
 
