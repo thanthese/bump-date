@@ -1,7 +1,3 @@
-//  + simple add
-// -> from date shown
-// :+ from today
-
 var XRegExp = require('xregexp').XRegExp;
 
 var bd = {}; // main bump-date namespace
@@ -331,7 +327,7 @@ bd.test.TestLog.prototype.printReport = function() {
     this.printSummaryReport();
 };
 
-bd.test.testDate = new Date(2013, 3 - 1, 30);  // saturday
+bd.test.testDate = new Date(2013, 3 - 1, 30); // saturday
 bd.test.testcases = [
     ["insert today", "random text", "13.03.30s random text"],
 
@@ -456,22 +452,16 @@ bd.test.runTests = function() {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-//// run from command line
+//// load/initialize/main/run script
 
-// do the normal date-bumping thing, but from stdin and to stdout
 function main() {
     process.stdin.resume();
-    process.stdin.on('data', bump);
-
-    function bump(data) {
+    process.stdin.on('data', function(data) {
         var text = data.toString();
         var now = new Date(Date.now());
         process.stdout.write(bd.bumpText(text, now));
-    }
+    });
 }
-
-////////////////////////////////////////////////////////////////////////////////
-//// load/initialize/main/run script
 
 if (process.argv[2] === "--test") {
     bd.test.runTests();
