@@ -9,7 +9,6 @@ var bd = {}; // main bump-date namespace
 ////////////////////////////////////////////////////////////////////////////////
 //// settings
 
-bd.runTestsOnStartup = false;
 bd.loggingEnabled = false;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,31 +16,53 @@ bd.loggingEnabled = false;
 
 bd.ERROR_MESSAGE = "ERROR";
 
-//"13.03.30s|+1m-1s", "13.04.27s|+1m-1s"
 bd._datePattern =
-    XRegExp("^ \
-            ((?<year> \\d{1,2})[.] (?=\\d{1,2}[.]\\d{1,2}))? \
-            ((?<month> \\d{1,2})[.])? \
-            (?<day> \\d{1,2})? \
-            (?<weekday> [mtwrfsu]\\b)? \
-            \
-            (?<addDef> \
-            (\\+(?<addYear> \\d+)y)? \
-            (\\+(?<addQuarter> \\d+)q)? \
-            (\\+(?<addMonth> \\d+)m)? \
-            (\\+(?<addWeek> \\d+)w)? \
-            (\\+(?<addDay> \\d+)d?)? \
-           )? \
-            \
-            (?<repeatDef> \
-            (((?<fromGivenY>->)|(?<fromTodayY>:\\+))(?<repeatYear> \\d+)y)? \
-            (((?<fromGivenQ>->)|(?<fromTodayQ>:\\+))(?<repeatQuarter> \\d+)q)? \
-            (((?<fromGivenM>->)|(?<fromTodayM>:\\+))(?<repeatMonth> \\d+)m)? \
-            (((?<fromGivenW>->)|(?<fromTodayW>:\\+))(?<repeatWeek> \\d+)w)? \
-            (((?<fromGivenD>->)|(?<fromTodayD>:\\+))(?<repeatDay> \\d+)d)? \
-            (\\|\\+ (?<rDelta>\\d+) (?<rType>[my]) (?<rNthWeek>[-|\\+]?\\d+) (?<rDay> [mtwrfsu]) )? \
-           )? \
-            ", 'x');
+    XRegExp(
+        "^" +
+
+        "((?<year>\\d{1,2})[.] (?= \\d{1,2} [.] \\d{1,2} ))?" +
+        "((?<month>\\d{1,2})[.])?" +
+        "(?<day>\\d{1,2})?" +
+        "(?<weekday>[mtwrfsu]\\b)?" +
+
+        "(?<addDef> " +
+        "  \\+ (" +
+        "    (?<addYear>\\d+)y" +
+        "    |" +
+        "    (?<addQuarter>\\d+)q" +
+        "    |" +
+        "    (?<addMonth>\\d+)m" +
+        "    |" +
+        "    (?<addWeek>\\d+)w" +
+        "    |" +
+        "    (?<addDay>\\d+)d" +
+        "  )" +
+        ")?" +
+
+        "(?<repeatDef>" +
+        "  (" +
+        "    ( (?<fromGiven>->) | (?<fromToday>:\\+) )" +
+        "    (" +
+        "      ((?<repeatYear>\\d+)y)" +
+        "      |" +
+        "      ((?<repeatQuarter>\\d+)q)" +
+        "      |" +
+        "      ((?<repeatMonth>\\d+)m)" +
+        "      |" +
+        "      ((?<repeatWeek>\\d+)w)" +
+        "      |" +
+        "      ((?<repeatDay>\\d+)d)" +
+        "    )" +
+        "  )" +
+        "  |" +
+        "  (\\|\\+ " +
+        "    (?<rDelta>\\d+)  " +
+        "    (?<rType>[my])  " +
+        "    (?<rNthWeek>[-\\+]\\d+)  " +
+        "    (?<rDay>[mtwrfsu])  " +
+        "  )" +
+        ")?" +
+        "", 'x');
 
 bd.bumpText = function(text, today) {
     bd.log("Bumping text \"" + text + "\" for date " + today);
@@ -82,14 +103,16 @@ bd._bumpDate = function(m, today) {
 };
 
 bd._shouldCalcRepeats = function(m) {
-    return (m.year && m.month && m.day && !m.addDef && m.repeatDef) || (!m.year && !m.month && !m.day && !m.weekday && !m.addDef && m.repeatDef);
+    var a = m.year && m.month && m.day && !m.addDef && m.repeatDef;
+    var b = !m.year && !m.month && !m.day && !m.weekday && !m.addDef && m.repeatDef;
+    return a || b;
 };
 
 bd._getDate = function(m, today) {
 
     bd.log("Getting date where today is " + today);
 
-    if (m.fromTodayD || m.fromTodayW || m.fromTodayM || m.fromTodayQ || m.fromTodayY) {
+    if (m.fromToday) {
         return today;
     }
 
@@ -151,7 +174,7 @@ bd._addRepeats = function(date, m) {
     if (m.repeatWeek) date = bd.date.addWeeks(date, parseInt(m.repeatWeek, 10));
     if (m.repeatDay) date = bd.date.addDays(date, parseInt(m.repeatDay, 10));
     if (m.rNthWeek) {
-        if(m.rType === "m") {
+        if (m.rType === "m") {
             date = bd.date.addMonths(date, parseInt(m.rDelta, 10));
         } else {
             date = bd.date.addYears(date, parseInt(m.rDelta, 10));
@@ -308,7 +331,7 @@ bd.test.TestLog.prototype.printReport = function() {
     this.printSummaryReport();
 };
 
-bd.test.testDate = new Date(2013, 3 - 1, 30);
+bd.test.testDate = new Date(2013, 3 - 1, 30);  // saturday
 bd.test.testcases = [
     ["insert today", "random text", "13.03.30s random text"],
 
@@ -316,7 +339,6 @@ bd.test.testcases = [
     ["no-op", "13.03.30s ignore", "13.03.30s ignore"],
 
     ["repeat days", "13.03.30s->1d", "13.03.31u->1d"],
-    ["repeat days", "13.04.01m->2d", "13.04.03w->2d"],
     ["repeat days", "13.04.01m->2d", "13.04.03w->2d"],
     ["repeat days", "13.04.01m->15d", "13.04.16t->15d"],
     ["repeat days", "13.03.02s->33d", "13.04.04r->33d"],
@@ -345,7 +367,10 @@ bd.test.testcases = [
 
     ["repeat only", "->5d", "13.04.04r->5d"],
     ["repeat only", "->1w", "13.04.06s->1w"],
+    ["repeat only", ":+5d", "13.04.04r:+5d"],
+    ["repeat only", ":+1w", "13.04.06s:+1w"],
 
+    ["repeat days from 'today'", "11.03.02s:+1d", "13.03.31u:+1d"],
     ["repeat days from 'today'", "13.03.02s:+371d", "14.04.05s:+371d"],
     ["repeat weeks from 'today'", "10.03.30s:+53w", "14.04.05s:+53w"],
     ["repeat quarters from 'today'", "10.03.30s:+1q", "13.06.29s:+1q"],
@@ -363,10 +388,12 @@ bd.test.testcases = [
     ["weekday only", "w ignore", "13.04.03w ignore"],
     ["weekday only", "t->2d", "13.04.02t->2d"],
     ["weekday only", "w->2d ignore", "13.04.03w->2d ignore"],
+    ["weekday only", "w:+2d ignore", "13.03.30s:+2d ignore"],
 
     ["day only", "6", "13.04.06s"],
     ["day only", "30", "13.04.30t"],
     ["day only", "7->2w ignore", "13.04.07u->2w ignore"],
+    ["day only", "7:+2w ignore", "13.03.30s:+2w ignore"],
 
     ["no year", "03.30", "14.03.30u"],
     ["no year", "08.13", "13.08.13t"],
@@ -376,12 +403,14 @@ bd.test.testcases = [
 
     ["adds day", "+4d", "13.04.03w"],
     ["adds day", "13.03.30+4d", "13.04.03w"],
-    ["adds day", "+3 ignore", "13.04.02t ignore"],
-    ["adds day", "+3->1d ignore", "13.04.02t->1d ignore"],
+    ["adds day", "+3d ignore", "13.04.02t ignore"],
+    ["adds day", "+3d->1d ignore", "13.04.02t->1d ignore"],
+    ["adds day", "+3d:+1d ignore", "13.04.02t:+1d ignore"],
 
     ["adds week", "+2w", "13.04.13s"],
     ["adds week", "+3w->1w ignore", "13.04.20s->1w ignore"],
     ["adds week", "13.03.30+3w->1w ignore", "13.04.20s->1w ignore"],
+    ["adds week", "13.03.30+3w:+1w ignore", "13.04.20s:+1w ignore"],
 
     ["adds quarters", "13.03.30s+1q", "13.06.29s"],
 
@@ -394,7 +423,6 @@ bd.test.testcases = [
     ["adds compound", "31u+2w", "13.04.14u"],
     ["adds compound", "t+2d->2d ignore", "13.04.04r->2d ignore"],
     ["adds compound", "t+2w->2d ignore", "13.04.16t->2d ignore"],
-    ["adds compound", "t+2w+1->2d ignore", "13.04.17w->2d ignore"],
     ["adds compound", "5+2w->2d ignore", "13.04.19f->2d ignore"],
     ["adds compound", "5+2m->2d ignore", "13.06.05w->2d ignore"],
 
