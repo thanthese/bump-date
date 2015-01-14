@@ -16,49 +16,49 @@ bd._datePattern =
     XRegExp(
         "^" +
 
-        "((?<year>\\d{1,2})[.] (?= \\d{1,2} [.] \\d{1,2} ))?" +
-        "((?<month>\\d{1,2})[.])?" +
-        "(?<day>\\d{1,2})?" +
-        "(?<weekday>[mtwrfsu]\\b)?" +
+            "((?<year>\\d{1,2})[.] (?= \\d{1,2} [.] \\d{1,2} ))?" +
+            "((?<month>\\d{1,2})[.])?" +
+            "(?<day>\\d{1,2})?" +
+            "(?<weekday>[mtwrfsu]\\b)?" +
 
-        "(?<addDef> " +
-        "  \\+ (" +
-        "    (?<addYear>\\d+)y" +
-        "    |" +
-        "    (?<addQuarter>\\d+)q" +
-        "    |" +
-        "    (?<addMonth>\\d+)m" +
-        "    |" +
-        "    (?<addWeek>\\d+)w" +
-        "    |" +
-        "    (?<addDay>\\d+)d" +
-        "  )" +
-        ")?" +
+            "(?<addDef> " +
+            "  \\+ (" +
+            "    (?<addYear>\\d+)y" +
+            "    |" +
+            "    (?<addQuarter>\\d+)q" +
+            "    |" +
+            "    (?<addMonth>\\d+)m" +
+            "    |" +
+            "    (?<addWeek>\\d+)w" +
+            "    |" +
+            "    (?<addDay>\\d+)d" +
+            "  )" +
+            ")?" +
 
-        "(?<repeatDef>" +
-        "  (" +
-        "    ( (?<fromGiven>->) | (?<fromToday>:\\+) )" +
-        "    (" +
-        "      ((?<repeatYear>\\d+)y)" +
-        "      |" +
-        "      ((?<repeatQuarter>\\d+)q)" +
-        "      |" +
-        "      ((?<repeatMonth>\\d+)m)" +
-        "      |" +
-        "      ((?<repeatWeek>\\d+)w)" +
-        "      |" +
-        "      ((?<repeatDay>\\d+)d)" +
-        "    )" +
-        "  )" +
-        "  |" +
-        "  (\\|\\+ " +
-        "    (?<rDelta>\\d+)  " +
-        "    (?<rType>[my])  " +
-        "    (?<rNthWeek>[-\\+]\\d+)  " +
-        "    (?<rDay>[mtwrfsu])  " +
-        "  )" +
-        ")?" +
-        "", 'x');
+            "(?<repeatDef>" +
+            "  (" +
+            "    ( (?<fromGiven>->) | (?<fromToday>:\\+) )" +
+            "    (" +
+            "      ((?<repeatYear>\\d+)y)" +
+            "      |" +
+            "      ((?<repeatQuarter>\\d+)q)" +
+            "      |" +
+            "      ((?<repeatMonth>\\d+)m)" +
+            "      |" +
+            "      ((?<repeatWeek>\\d+)w)" +
+            "      |" +
+            "      ((?<repeatDay>\\d+)d)" +
+            "    )" +
+            "  )" +
+            "  |" +
+            "  (\\|\\+ " +
+            "    (?<rDelta>\\d+)  " +
+            "    (?<rType>[my])  " +
+            "    (?<rNthWeek>[-\\+]\\d+)  " +
+            "    (?<rDay>[mtwrfsu])  " +
+            "  )" +
+            ")?" +
+            "", 'x');
 
 bd.bumpText = function(text, today) {
     bd.log("Bumping text \"" + text + "\" for date " + today);
@@ -101,24 +101,28 @@ bd._bumpDate = function(m, today) {
 bd._shouldCalcRepeats = function(m) {
     var a = m.year && m.month && m.day && !m.addDef && m.repeatDef;
     var b = !m.year && !m.month && !m.day && !m.weekday && !m.addDef && m.repeatDef;
-    return a || b;
+    var should = a || b;
+    bd.log("should: " + should);
+    return should;
 };
 
 bd._getDate = function(m, today) {
 
     bd.log("Getting date where today is " + today);
 
-    if (m.fromToday) {
-        return today;
-    }
-
     var date;
 
     if (m.year && m.month && m.day) {
+
+        // if using :+ operator, use today instead of what's written
+        if (m.fromToday) {
+            return today;
+        }
+
         bd.log("Year, month, and day found: " + m.year + ", " + m.month + ", " + m.day);
         date = new Date(parseInt(m.year, 10) + 2000,
-            parseInt(m.month, 10) - 1,
-            parseInt(m.day, 10));
+                        parseInt(m.month, 10) - 1,
+                        parseInt(m.day, 10));
 
         if (date.getMonth() != parseInt(m.month, 10) - 1) {
             bd.log("It thinks parsed the user's date to  " + date);
@@ -247,8 +251,8 @@ bd.date = {};
 
 bd.date.addYears = function(date, n) {
     return new Date(date.getFullYear() + n,
-        date.getMonth(),
-        date.getDate());
+                    date.getMonth(),
+                    date.getDate());
 };
 
 bd.date.addQuarters = function(date, n) {
@@ -258,8 +262,8 @@ bd.date.addQuarters = function(date, n) {
 bd.date.addMonths = function(date, n) {
     var totalMonths = date.getMonth() + n;
     var newDate = new Date(date.getFullYear() + (totalMonths / 12),
-        totalMonths % 12,
-        date.getDate());
+                           totalMonths % 12,
+                           date.getDate());
     if (date.getDate() != newDate.getDate()) {
         throw "Dates don't match after adding " + n + " months(s): " + date + " => " + newDate;
     }
@@ -384,12 +388,12 @@ bd.test.testcases = [
     ["weekday only", "w ignore", "13.04.03w ignore"],
     ["weekday only", "t->2d", "13.04.02t->2d"],
     ["weekday only", "w->2d ignore", "13.04.03w->2d ignore"],
-    ["weekday only", "w:+2d ignore", "13.03.30s:+2d ignore"],
+    ["weekday only", "w:+2d ignore", "13.04.03w:+2d ignore"],
 
     ["day only", "6", "13.04.06s"],
     ["day only", "30", "13.04.30t"],
     ["day only", "7->2w ignore", "13.04.07u->2w ignore"],
-    ["day only", "7:+2w ignore", "13.03.30s:+2w ignore"],
+    ["day only", "7:+2w ignore", "13.04.07u:+2w ignore"],
 
     ["no year", "03.30", "14.03.30u"],
     ["no year", "08.13", "13.08.13t"],
@@ -421,6 +425,8 @@ bd.test.testcases = [
     ["adds compound", "t+2w->2d ignore", "13.04.16t->2d ignore"],
     ["adds compound", "5+2w->2d ignore", "13.04.19f->2d ignore"],
     ["adds compound", "5+2m->2d ignore", "13.06.05w->2d ignore"],
+    ["adds compound", "+2d:+2d ignore", "13.04.01m:+2d ignore"],
+    ["adds compound", "t+2d:+2d ignore", "13.04.04r:+2d ignore"],
 
     ["nth x of month", "13.03.30s|+1m-1s last sat", "13.04.27s|+1m-1s last sat"],
     ["nth x of month", "13.08.31s|+1m-1s last sat bug fix", "13.09.28s|+1m-1s last sat bug fix"],
@@ -442,7 +448,7 @@ bd.test.runTests = function() {
         var expected = tc[testcase][2];
         try {
             log.equal(bd.bumpText(before, bd.test.testDate),
-                expected, group, before);
+                      expected, group, before);
         } catch (e) {
             console.log("Failed on '" + group + "', '" + before + "'");
             throw e;
