@@ -31,7 +31,7 @@ bd._datePattern =
             "    |" +
             "    (?<addWeek>\\d+)w" +
             "    |" +
-            "    (?<addDay>\\d+)d" +
+            "    (?<addDay>\\d+)d?" +
             "  )" +
             ")?" +
 
@@ -47,7 +47,7 @@ bd._datePattern =
             "      |" +
             "      ((?<repeatWeek>\\d+)w)" +
             "      |" +
-            "      ((?<repeatDay>\\d+)d)" +
+            "      ((?<repeatDay>\\d+)d?)" +
             "    )" +
             "  )" +
             "  |" +
