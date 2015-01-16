@@ -47,7 +47,7 @@ bd._datePattern =
             "      |" +
             "      ((?<repeatWeek>\\d+)w)" +
             "      |" +
-            "      ((?<repeatDay>\\d+)d?)" +
+            "      ((?<repeatDay>\\d+)d)" +
             "    )" +
             "  )" +
             "  |" +
@@ -402,10 +402,15 @@ bd.test.testcases = [
     ["no year", "03.31u", "13.03.31u"],
 
     ["adds day", "+4d", "13.04.03w"],
+    ["adds day", "+4", "13.04.03w"],
     ["adds day", "13.03.30+4d", "13.04.03w"],
+    ["adds day", "13.03.30+4", "13.04.03w"],
     ["adds day", "+3d ignore", "13.04.02t ignore"],
+    ["adds day", "+3 ignore", "13.04.02t ignore"],
     ["adds day", "+3d->1d ignore", "13.04.02t->1d ignore"],
+    ["adds day", "+3->1d ignore", "13.04.02t->1d ignore"],
     ["adds day", "+3d:+1d ignore", "13.04.02t:+1d ignore"],
+    ["adds day", "+3:+1d ignore", "13.04.02t:+1d ignore"],
 
     ["adds week", "+2w", "13.04.13s"],
     ["adds week", "+3w->1w ignore", "13.04.20s->1w ignore"],
@@ -422,11 +427,13 @@ bd.test.testcases = [
     ["adds compound", "t+2w", "13.04.16t"],
     ["adds compound", "31u+2w", "13.04.14u"],
     ["adds compound", "t+2d->2d ignore", "13.04.04r->2d ignore"],
+    ["adds compound", "t+2->2d ignore", "13.04.04r->2d ignore"],
     ["adds compound", "t+2w->2d ignore", "13.04.16t->2d ignore"],
     ["adds compound", "5+2w->2d ignore", "13.04.19f->2d ignore"],
     ["adds compound", "5+2m->2d ignore", "13.06.05w->2d ignore"],
     ["adds compound", "+2d:+2d ignore", "13.04.01m:+2d ignore"],
     ["adds compound", "t+2d:+2d ignore", "13.04.04r:+2d ignore"],
+    ["adds compound", "t+2:+2d ignore", "13.04.04r:+2d ignore"],
 
     ["nth x of month", "13.03.30s|+1m-1s last sat", "13.04.27s|+1m-1s last sat"],
     ["nth x of month", "13.08.31s|+1m-1s last sat bug fix", "13.09.28s|+1m-1s last sat bug fix"],

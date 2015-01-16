@@ -46,8 +46,9 @@ which lets you store a list of calendar items in a file, like this:
     15.01.13t make a million dollars
     15.01.14w build a Scrooge McDuck pool
 
-You can set a date relative to today with the `+n` syntax, where `n` is a **d**ay, **w**eek, **m**onth, **q**uarter, or **y**ear.
+You can set a date relative to today with the `+n` syntax, where `n` is a **d**ay, **w**eek, **m**onth, **q**uarter, or **y**ear. If no unit is specified, day is assumed.
 
+    +4                => 13.04.03w
     +4d               => 13.04.03w
     +2w               => 13.04.13s
     +1m               => 13.04.30t
