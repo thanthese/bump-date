@@ -472,7 +472,7 @@ function main() {
     process.stdin.on('data', function(data) {
         var text = data.toString();
         var now = new Date(Date.now());
-        process.stdout.write(bd.bumpText(text, now));
+        process.stdout.write(bd.bumpText(text.trim(), now));
     });
 }
 
