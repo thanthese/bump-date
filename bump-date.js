@@ -76,7 +76,7 @@ bd.bumpText = function(text, today) {
         var prettyDate = bd._prettyFormatDate(date) + (m.repeatDef || "");
         return text.replace(/^\S+/, prettyDate);
     } catch (e) {
-        //  console.log(e);
+        bd.log(e);
         return bd.ERROR_MESSAGE;
     }
 };
@@ -87,20 +87,18 @@ bd._bumpDate = function(m, today) {
     date = bd._addAdds(date, m);
     bd.log("Date after adding adds is " + date);
     if (bd._shouldCalcRepeats(m)) {
-        if (m.rNthWeek && date.getDate() > 15) {
-            date = bd.date.reduceByOneWeek(date);
-        }
         date = bd._addRepeats(date, m);
         bd.log("The date after adding repeats is " + date);
-        return date;
     }
-    bd.log("The date had no repeats");
     return date;
 };
 
 bd._shouldCalcRepeats = function(m) {
-    var a = m.year && m.month && m.day && !m.addDef && m.repeatDef;
-    var b = !m.year && !m.month && !m.day && !m.weekday && !m.addDef && m.repeatDef;
+    if(!m.repeatDef) {
+        return false;
+    }
+    var a =  m.year &&  m.month &&  m.day               && !m.addDef;
+    var b = !m.year && !m.month && !m.day && !m.weekday && !m.addDef;
     var should = a || b;
     bd.log("should: " + should);
     return should;
@@ -114,8 +112,8 @@ bd._getDate = function(m, today) {
 
     if (m.year && m.month && m.day) {
 
-        // if using :+ operator, use today instead of what's written
-        if (m.fromToday) {
+        // if actively using :+ operator use today instead of what's written
+        if (m.fromToday && !m.addDef) {
             return today;
         }
 
@@ -174,6 +172,12 @@ bd._addRepeats = function(date, m) {
     if (m.repeatWeek) date = bd.date.addWeeks(date, parseInt(m.repeatWeek, 10));
     if (m.repeatDay) date = bd.date.addDays(date, parseInt(m.repeatDay, 10));
     if (m.rNthWeek) {
+
+        // make sure we don't fall off the end of the month while calculating
+        if (date.getDate() > 15) {
+            date = bd.date.reduceByOneWeek(date);
+        }
+
         if (m.rType === "m") {
             date = bd.date.addMonths(date, parseInt(m.rDelta, 10));
         } else {
@@ -434,6 +438,8 @@ bd.test.testcases = [
     ["adds compound", "+2d:+2d ignore", "13.04.01m:+2d ignore"],
     ["adds compound", "t+2d:+2d ignore", "13.04.04r:+2d ignore"],
     ["adds compound", "t+2:+2d ignore", "13.04.04r:+2d ignore"],
+    ["adds compound", "15.06.06s+1d:+2d", "15.06.07u:+2d"],
+    ["adds compound", "15.06.06s+1d->2d", "15.06.07u->2d"],
 
     ["nth x of month", "13.03.30s|+1m-1s last sat", "13.04.27s|+1m-1s last sat"],
     ["nth x of month", "13.08.31s|+1m-1s last sat bug fix", "13.09.28s|+1m-1s last sat bug fix"],
@@ -460,6 +466,7 @@ bd.test.runTests = function() {
             console.log("Failed on '" + group + "', '" + before + "'");
             throw e;
         }
+        bd.log("----");
     }
     log.printReport();
 };
@@ -469,10 +476,10 @@ bd.test.runTests = function() {
 
 function main() {
     process.stdin.resume();
-    process.stdin.on('data', function(data) {
-        var text = data.toString();
+    process.stdin.on('input', function(input) {
+        var text = input.toString().trim();
         var now = new Date(Date.now());
-        process.stdout.write(bd.bumpText(text.trim(), now));
+        process.stdout.write(bd.bumpText(text, now));
     });
 }
 
