@@ -476,8 +476,8 @@ bd.test.runTests = function() {
 
 function main() {
     process.stdin.resume();
-    process.stdin.on('input', function(input) {
-        var text = input.toString().trim();
+    process.stdin.on('data', function(data) {
+        var text = data.toString().trim();
         var now = new Date(Date.now());
         process.stdout.write(bd.bumpText(text, now));
     });
