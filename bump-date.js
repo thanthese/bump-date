@@ -1,4 +1,4 @@
-var XRegExp = require('xregexp').XRegExp;
+var XRegExp = require("xregexp").XRegExp;
 
 var bd = {}; // main bump-date namespace
 
@@ -58,7 +58,7 @@ bd._datePattern =
             "    (?<rDay>[mtwrfsu])  " +
             "  )" +
             ")?" +
-            "", 'x');
+            "", "x");
 
 bd.bumpText = function(text, today) {
     bd.log("Bumping text \"" + text + "\" for date " + today);
@@ -122,10 +122,10 @@ bd._getDate = function(m, today) {
                         parseInt(m.month, 10) - 1,
                         parseInt(m.day, 10));
 
-        if (date.getMonth() != parseInt(m.month, 10) - 1) {
+        if (date.getMonth() !== parseInt(m.month, 10) - 1) {
             bd.log("It thinks parsed the user's date to  " + date);
             bd.log("...based on " + m.year + ", " + m.month + ", " + m.day);
-            bd.log("date.getMonth() is " + date.getMonth() + " != " + "parseInt(m.month, 10) - 1 is " + (parseInt(m.month, 10) - 1));
+            bd.log("date.getMonth() is " + date.getMonth() + " !== " + "parseInt(m.month, 10) - 1 is " + (parseInt(m.month, 10) - 1));
             throw "Invalid original date.";
         }
         return date;
@@ -139,7 +139,7 @@ bd._getDate = function(m, today) {
     if (!m.year && !m.month && !m.day && m.weekday) {
         bd.log("Weekday only defined: " + m.weekday);
         date = bd.date.addDays(today, 1);
-        while (date.getDay() != bd._uglyWeekday(m.weekday)) {
+        while (date.getDay() !== bd._uglyWeekday(m.weekday)) {
             date = bd.date.addDays(date, 1);
         }
         return date;
@@ -148,7 +148,7 @@ bd._getDate = function(m, today) {
     if (!m.year && !m.month && m.day) {
         bd.log("Day only defined: " + m.day);
         date = bd.date.addDays(today, 1);
-        while (date.getDate() != parseInt(m.day, 10)) {
+        while (date.getDate() !== parseInt(m.day, 10)) {
             date = bd.date.addDays(date, 1);
         }
         return date;
@@ -157,7 +157,7 @@ bd._getDate = function(m, today) {
     if (!m.year && m.month && m.day) {
         bd.log("Month and day only defined: " + m.month + ", " + m.day);
         date = bd.date.addDays(today, 1);
-        while (!(date.getDate() == parseInt(m.day, 10) && date.getMonth() == (parseInt(m.month, 10) - 1))) {
+        while (!(date.getDate() === parseInt(m.day, 10) && date.getMonth() === (parseInt(m.month, 10) - 1))) {
             date = bd.date.addDays(date, 1);
         }
         return date;
@@ -208,7 +208,7 @@ bd._listWeeks = function(year, month, weekday) {
     var weeks = [];
     for (var i = 0; i <= 31; ++i) {
         var date = bd.date.addDays(first, i);
-        if (date.getDay() == bd._uglyWeekday(weekday) && date.getMonth() == month) {
+        if (date.getDay() === bd._uglyWeekday(weekday) && date.getMonth() === month) {
             weeks.push(date);
         }
     }
@@ -221,25 +221,25 @@ bd._prettyFormatDate = function(date) {
 
 bd._prettyWeekday = function(n) {
     return {
-        0: 'u',
-        1: 'm',
-        2: 't',
-        3: 'w',
-        4: 'r',
-        5: 'f',
-        6: 's'
+        0: "u",
+        1: "m",
+        2: "t",
+        3: "w",
+        4: "r",
+        5: "f",
+        6: "s"
     }[n];
 };
 
 bd._uglyWeekday = function(n) {
     return {
-        'u': 0,
-        'm': 1,
-        't': 2,
-        'w': 3,
-        'r': 4,
-        'f': 5,
-        's': 6
+        "u": 0,
+        "m": 1,
+        "t": 2,
+        "w": 3,
+        "r": 4,
+        "f": 5,
+        "s": 6
     }[n];
 };
 
@@ -268,7 +268,7 @@ bd.date.addMonths = function(date, n) {
     var newDate = new Date(date.getFullYear() + (totalMonths / 12),
                            totalMonths % 12,
                            date.getDate());
-    if (date.getDate() != newDate.getDate()) {
+    if (date.getDate() !== newDate.getDate()) {
         throw "Dates don't match after adding " + n + " months(s): " + date + " => " + newDate;
     }
     return newDate;
@@ -312,7 +312,7 @@ bd.test.TestLog = function() {
 };
 
 bd.test.TestLog.prototype.equal = function(got, expected, group, initial) {
-    if (got == expected) {
+    if (got === expected) {
         this.passCount += 1;
         return this;
     } else {
@@ -447,7 +447,7 @@ bd.test.testcases = [
     ["nth x of month", "13.03.30s|+1m+2s 2nd sat", "13.04.13s|+1m+2s 2nd sat"],
     ["nth x of month", "13.05.12u|+1y+2u 2nd sunday in may", "14.05.11u|+1y+2u 2nd sunday in may"],
     ["nth x of month", "15.01.11u|+1m+1u 1st of a month", "15.02.01u|+1m+1u 1st of a month"],
-    ["nth x of month", "15.01.06f|+1y+1f 1st of a year", "16.01.01f|+1y+1f 1st of a year"],
+    ["nth x of month", "15.01.06f|+1y+1f 1st of a year", "16.01.01f|+1y+1f 1st of a year"]
 ];
 
 bd.test.runTests = function() {
@@ -476,7 +476,7 @@ bd.test.runTests = function() {
 
 function main() {
     process.stdin.resume();
-    process.stdin.on('data', function(data) {
+    process.stdin.on("data", function(data) {
         var text = data.toString().trim();
         var now = new Date(Date.now());
         process.stdout.write(bd.bumpText(text, now));
