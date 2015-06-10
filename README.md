@@ -1,6 +1,6 @@
 ## Purpose
 
-Command line tool for completing and repeating dates in a compact, human-readable format. Basically a big ball of "Do what I mean" for dates. 
+Command line tool for completing and repeating dates in a compact, human-readable format. Basically a big ball of "Do what I mean" for dates.
 
 ## Usage
 
@@ -15,6 +15,10 @@ and back into the active buffer, as with Emacs' `shell-command-on-region` or Vim
 To run tests:
 
     node bump-date.js --test
+
+### Plus one
+
+Pass the `--plusone` option to add one day to the passed-in date. The date is completed and pluses are added as usual, but repeats are ignored.
 
 ## Requirements
 
@@ -36,7 +40,7 @@ If you give only part of the date the rest will be filled in. (These examples as
     14.03.30          => 14.03.30u
     14.03.30u         => 14.03.30u
 
-Junk at the end of the line is ignored, 
+Junk at the end of the line is ignored,
 
     14.03.30u foo     => 14.03.30u foo
 
@@ -71,7 +75,7 @@ The `:+` operator works almost the same way, but adds from *today* rather than t
     13.03.15f:+4d     => 13.04.03w:+4d
 
 You can mix and match completion, adding, and a type of repetition.
-     
+
     31u+2w            => 13.04.14u
     t+2d->2d          => 13.04.04r->2d
     t+2w+1->2d        => 13.04.17w->2d
@@ -86,7 +90,7 @@ The last operator, `|+`, is for those "2nd Sunday of the month" situations, like
 
 Last Saturday of every month:
 
-    13.03.30s|+1m-1s => 13.04.27s|+1m-1s 
+    13.03.30s|+1m-1s => 13.04.27s|+1m-1s
 
 2nd sunday in may:
 
@@ -102,6 +106,6 @@ Some subtleties:
 
 - A **year** only touches the year, like December 25th to December 25th.
 
-## License 
+## License
 
 MIT

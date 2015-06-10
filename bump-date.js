@@ -60,20 +60,17 @@ bd._datePattern =
             ")?" +
             "", "x");
 
-bd.bumpText = function(text, today) {
+bd.bumpText = function(text, today, plusone) {
     bd.log("Bumping text \"" + text + "\" for date " + today);
-    if (!today) {
-        console.log("Error: missing parameter 'today'.");
-        return bd.ERROR_MESSAGE;
-    }
     var m = XRegExp.exec(text, bd._datePattern);
-    if (!m || m[0] === "") {
-        bd.log("No regex match found.");
-        return bd._prettyFormatDate(today) + " " + text;
+    if (m[0] === "") {
+        bd.log("No date found in user input, using today as date.");
+        var newDate = plusone ? bd.date.addDays(today, 1) : today;
+        return bd._prettyFormatDate(newDate) + " " + text;
     }
     try {
-        var date = bd._bumpDate(m, today);
-        var prettyDate = bd._prettyFormatDate(date) + (m.repeatDef || "");
+        var bumpedDate = bd._bumpDate(m, today, plusone);
+        var prettyDate = bd._prettyFormatDate(bumpedDate) + (m.repeatDef || "");
         return text.replace(/^\S+/, prettyDate);
     } catch (e) {
         bd.log(e);
@@ -81,15 +78,24 @@ bd.bumpText = function(text, today) {
     }
 };
 
-bd._bumpDate = function(m, today) {
-    var date = bd._getDate(m, today);
+bd._bumpDate = function(m, today, plusone) {
+    var useToday = bd.date.hasYMD(m) && m.fromToday && !plusone && !m.addDef;
+    var date = useToday ? today : bd._getDate(m, today);
     bd.log("The gotten date is " + date);
+
     date = bd._addAdds(date, m);
     bd.log("Date after adding adds is " + date);
-    if (bd._shouldCalcRepeats(m)) {
+
+    if (!plusone && bd._shouldCalcRepeats(m)) {
         date = bd._addRepeats(date, m);
         bd.log("The date after adding repeats is " + date);
     }
+
+    if(plusone) {
+        date = bd.date.addDays(date, 1);
+        bd.log("Added one day for plus one.");
+    }
+
     return date;
 };
 
@@ -100,7 +106,7 @@ bd._shouldCalcRepeats = function(m) {
     var a =  m.year &&  m.month &&  m.day               && !m.addDef;
     var b = !m.year && !m.month && !m.day && !m.weekday && !m.addDef;
     var should = a || b;
-    bd.log("should: " + should);
+    bd.log("should calc repeats: " + should);
     return should;
 };
 
@@ -110,13 +116,7 @@ bd._getDate = function(m, today) {
 
     var date;
 
-    if (m.year && m.month && m.day) {
-
-        // if actively using :+ operator use today instead of what's written
-        if (m.fromToday && !m.addDef) {
-            return today;
-        }
-
+    if (bd.date.hasYMD(m)) {
         bd.log("Year, month, and day found: " + m.year + ", " + m.month + ", " + m.day);
         date = new Date(parseInt(m.year, 10) + 2000,
                         parseInt(m.month, 10) - 1,
@@ -157,7 +157,8 @@ bd._getDate = function(m, today) {
     if (!m.year && m.month && m.day) {
         bd.log("Month and day only defined: " + m.month + ", " + m.day);
         date = bd.date.addDays(today, 1);
-        while (!(date.getDate() === parseInt(m.day, 10) && date.getMonth() === (parseInt(m.month, 10) - 1))) {
+        while (!(date.getDate() === parseInt(m.day, 10)
+                 && date.getMonth() === (parseInt(m.month, 10) - 1))) {
             date = bd.date.addDays(date, 1);
         }
         return date;
@@ -292,12 +293,16 @@ bd.date.reduceByOneWeek = function(date) {
     return new Date(copyDate.setDate(copyDate.getDate() - 7));
 };
 
+bd.date.hasYMD = function(m) {
+    return m.year && m.month && m.day;
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //// logging
 
 bd.log = function(msg) {
     if (bd.loggingEnabled) {
-        console.log("log: " + msg);
+            console.log("log: " + msg);
     }
 };
 
@@ -450,6 +455,14 @@ bd.test.testcases = [
     ["nth x of month", "15.01.06f|+1y+1f 1st of a year", "16.01.01f|+1y+1f 1st of a year"]
 ];
 
+var plusoneTestCases = [
+    ["15.06.10w", "15.06.11r"],
+    ["15.06.10w:+4d", "15.06.11r:+4d"],
+    ["15.06.10w->4d", "15.06.11r->4d"],
+    ["15.06.10w+2d", "15.06.13s"],
+    ["test", "13.03.31u test"]
+];
+
 bd.test.runTests = function() {
     console.log("");
     console.log("****************************************");
@@ -460,7 +473,7 @@ bd.test.runTests = function() {
         var before = tc[testcase][1];
         var expected = tc[testcase][2];
         try {
-            log.equal(bd.bumpText(before, bd.test.testDate),
+            log.equal(bd.bumpText(before, bd.test.testDate, false),
                       expected, group, before);
         } catch (e) {
             console.log("Failed on '" + group + "', '" + before + "'");
@@ -468,23 +481,31 @@ bd.test.runTests = function() {
         }
         bd.log("----");
     }
+    for (var testcase in plusoneTestCases) {
+        var before = plusoneTestCases[testcase][0];
+        var expected = plusoneTestCases[testcase][1];
+        log.equal(bd.bumpText(before, bd.test.testDate, true),
+                  expected, "plusone test", before);
+    }
     log.printReport();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //// load/initialize/main/run script
 
-function main() {
+function main(plusone) {
     process.stdin.resume();
     process.stdin.on("data", function(data) {
         var text = data.toString().trim();
         var now = new Date(Date.now());
-        process.stdout.write(bd.bumpText(text, now));
+        process.stdout.write(bd.bumpText(text, now, plusone));
     });
 }
 
 if (process.argv[2] === "--test") {
     bd.test.runTests();
+} else if (process.argv[2] === "--plusone") {
+    main(true);
 } else {
-    main();
+    main(false);
 }
