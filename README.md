@@ -18,14 +18,14 @@ To run tests:
 
 ### Plus one
 
-Pass the `--plusone` option to add one day to the passed-in date. The date is completed and pluses are added as usual, but repeats are ignored.
+Pass the `--plus` option to add one day to the passed-in date or `--plus n` to add `n` days. The date will be completed as usual and the given number of days added, but adds and repeats will be left untouched and unapplied.
 
 ## Requirements
 
 - [node](http://nodejs.org/)
 - [xregexp](http://xregexp.com/) node package
 
-There aren't any installation instructions. It's just a single `.js` file -- download it and run it with node.
+There aren't any installation instructions. It's just a single `.js` file -- download it and run it with `node bump-date.js`.
 
 ## Tutorial
 
@@ -40,7 +40,7 @@ If you give only part of the date the rest will be filled in. (These examples as
     14.03.30          => 14.03.30u
     14.03.30u         => 14.03.30u
 
-Junk at the end of the line is ignored,
+An incorrect weekday will be corrected. Junk at the end of the line is ignored,
 
     14.03.30u foo     => 14.03.30u foo
 
@@ -50,7 +50,7 @@ which lets you store a list of calendar items in a file, like this:
     15.01.13t make a million dollars
     15.01.14w build a Scrooge McDuck pool
 
-You can set a date relative to today with the `+n` syntax, where `n` is a **d**ay, **w**eek, **m**onth, **q**uarter, or **y**ear. If no unit is specified, day is assumed.
+You can set a date relative to today with the `+n` add syntax, where `n` is a **d**ay, **w**eek, **m**onth, **q**uarter, or **y**ear. If no unit is specified, day is assumed.
 
     +4                => 13.04.03w
     +4d               => 13.04.03w
@@ -70,7 +70,9 @@ The `->` syntax is similar to `+`, but it sticks around. This makes it easy to s
     13.03.30s->2y     => 15.03.30m->2y
     ->5d              => 13.04.04r->5d
 
-The `:+` operator works almost the same way, but adds from *today* rather than the listed date. Use `->` for events that always happen on the same day (Monday night bowling), and `:+` for reminders you need *x* days after completing a task (even if you're 2 days late the house still doesn't need vacuuming again for another 4 days).
+The `->` is only applied if (1) the date was complete (that is, it had a year, month, and day specified) or completely absent (not even a weekday), (2) there were no `+` adds, and (3) the `--plus` option was not used. The idea is that the date is "fixed" or "completed" before additional repetition rules are "applied" to it.
+
+The `:+` operator works almost the same way, but adds from *today* rather than the listed date. Use `->` for events that always happen on the same day (Monday night bowling), and `:+` for reminders you need *n* days after completing a task (even if you're 2 days late the house still doesn't need vacuuming again for another 4 days).
 
     13.03.15f:+4d     => 13.04.03w:+4d
 
@@ -82,7 +84,7 @@ You can mix and match completion, adding, and a type of repetition.
     5+2w->2d          => 13.04.19f->2d
     5+2w:+2d          => 13.04.19f:+1d
 
-The last operator, `|+`, is for those "2nd Sunday of the month" situations, like Mother's Day.
+The last repeating operator, `|+`, is for those "2nd Sunday of the month" situations, like Mother's Day.
 
 2nd Saturday of every month:
 

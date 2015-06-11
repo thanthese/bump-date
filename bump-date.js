@@ -60,17 +60,20 @@ bd._datePattern =
             ")?" +
             "", "x");
 
-bd.bumpText = function(text, today, plusone) {
+bd.bumpText = function(text, today, plus) {
     bd.log("Bumping text \"" + text + "\" for date " + today);
     var m = XRegExp.exec(text, bd._datePattern);
     if (m[0] === "") {
-        bd.log("No date found in user input, using today as date.");
-        var newDate = plusone ? bd.date.addDays(today, 1) : today;
+        bd.log("No date found in user input, using today (maybe with plus) as date.");
+        var newDate = plus > 0 ? bd.date.addDays(today, plus) : today;
         return bd._prettyFormatDate(newDate) + " " + text;
     }
     try {
-        var bumpedDate = bd._bumpDate(m, today, plusone);
-        var prettyDate = bd._prettyFormatDate(bumpedDate) + (m.repeatDef || "");
+        var addStr = plus > 0 ? (m.addDef || "") : "";
+        var repeatStr = m.repeatDef || "";
+        if(plus > 0) bd._spoofAdd(m, plus);
+        var bumpedDate = bd._bumpDate(m, today);
+        var prettyDate = bd._prettyFormatDate(bumpedDate) + addStr + repeatStr;
         return text.replace(/^\S+/, prettyDate);
     } catch (e) {
         bd.log(e);
@@ -78,36 +81,42 @@ bd.bumpText = function(text, today, plusone) {
     }
 };
 
-bd._bumpDate = function(m, today, plusone) {
-    var useToday = bd.date.hasYMD(m) && m.fromToday && !plusone && !m.addDef;
+// the "--plus" logic piggy-backs on the add logic -- it replaces it
+// for this run
+bd._spoofAdd = function(m, plus) {
+    m.addYear = undefined;
+    m.addQuarter = undefined;
+    m.addMonth = undefined;
+    m.addWeek = undefined;
+    m.addDay = plus;
+    m.addDef = "+" + m.addDay;
+};
+
+bd._bumpDate = function(m, today) {
+    var useToday = bd.date.hasYMD(m) && !m.addDef && m.fromToday;
     var date = useToday ? today : bd._getDate(m, today);
     bd.log("The gotten date is " + date);
 
     date = bd._addAdds(date, m);
     bd.log("Date after adding adds is " + date);
 
-    if (!plusone && bd._shouldCalcRepeats(m)) {
+    if (bd._shouldCalcRepeats(m)) {
         date = bd._addRepeats(date, m);
         bd.log("The date after adding repeats is " + date);
-    }
-
-    if(plusone) {
-        date = bd.date.addDays(date, 1);
-        bd.log("Added one day for plus one.");
     }
 
     return date;
 };
 
 bd._shouldCalcRepeats = function(m) {
-    if(!m.repeatDef) {
+    if(m.addDef || !m.repeatDef) {
         return false;
     }
-    var a =  m.year &&  m.month &&  m.day               && !m.addDef;
-    var b = !m.year && !m.month && !m.day && !m.weekday && !m.addDef;
-    var should = a || b;
-    bd.log("should calc repeats: " + should);
-    return should;
+    var everythingGiven = m.year && m.month && m.day;
+    var nothingGiven = !m.year && !m.month && !m.day && !m.weekday;
+    var shouldRepeat = everythingGiven || nothingGiven;
+    bd.log("should calc repeats: " + shouldRepeat);
+    return shouldRepeat;
 };
 
 bd._getDate = function(m, today) {
@@ -455,12 +464,17 @@ bd.test.testcases = [
     ["nth x of month", "15.01.06f|+1y+1f 1st of a year", "16.01.01f|+1y+1f 1st of a year"]
 ];
 
-var plusoneTestCases = [
-    ["15.06.10w", "15.06.11r"],
-    ["15.06.10w:+4d", "15.06.11r:+4d"],
-    ["15.06.10w->4d", "15.06.11r->4d"],
-    ["15.06.10w+2d", "15.06.13s"],
-    ["test", "13.03.31u test"]
+var plusTestCases = [
+    ["15.06.10w", "15.06.11r", 1],
+    ["15.06.10w:+4d", "15.06.11r:+4d", 1],
+    ["15.06.10w->4d", "15.06.11r->4d", 1],
+    ["15.06.10w+2d", "15.06.11r+2d", 1],
+    ["test", "13.03.31u test", 1],
+    ["15.06.10w", "15.06.12f", 2],
+    ["15.06.10w:+4d", "15.06.12f:+4d", 2],
+    ["15.06.10w->4d", "15.06.12f->4d", 2],
+    ["15.06.10w+2d", "15.06.12f+2d", 2],
+    ["test", "13.04.01m test", 2]
 ];
 
 bd.test.runTests = function() {
@@ -481,11 +495,12 @@ bd.test.runTests = function() {
         }
         bd.log("----");
     }
-    for (var testcase in plusoneTestCases) {
-        var before = plusoneTestCases[testcase][0];
-        var expected = plusoneTestCases[testcase][1];
-        log.equal(bd.bumpText(before, bd.test.testDate, true),
-                  expected, "plusone test", before);
+    for (var testcase in plusTestCases) {
+        var before = plusTestCases[testcase][0];
+        var expected = plusTestCases[testcase][1];
+        var add = plusTestCases[testcase][2];
+        log.equal(bd.bumpText(before, bd.test.testDate, add),
+                  expected, "plus test +" + add, before);
     }
     log.printReport();
 };
@@ -493,19 +508,21 @@ bd.test.runTests = function() {
 ////////////////////////////////////////////////////////////////////////////////
 //// load/initialize/main/run script
 
-function main(plusone) {
+function main(plus) {
     process.stdin.resume();
     process.stdin.on("data", function(data) {
         var text = data.toString().trim();
         var now = new Date(Date.now());
-        process.stdout.write(bd.bumpText(text, now, plusone));
+        process.stdout.write(bd.bumpText(text, now, plus));
     });
 }
 
 if (process.argv[2] === "--test") {
     bd.test.runTests();
-} else if (process.argv[2] === "--plusone") {
-    main(true);
+} else if (process.argv[2] === "--plus") {
+    amount = process.argv[3];
+    var n = amount ? parseInt(amount, 10) : 1;
+    main(n);
 } else {
-    main(false);
+    main(0);
 }
