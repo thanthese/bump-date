@@ -520,7 +520,7 @@ function main(plus) {
 if (process.argv[2] === "--test") {
     bd.test.runTests();
 } else if (process.argv[2] === "--plus") {
-    amount = process.argv[3];
+    var amount = process.argv[3];
     var n = amount ? parseInt(amount, 10) : 1;
     main(n);
 } else {
