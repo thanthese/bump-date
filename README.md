@@ -18,7 +18,7 @@ To run tests:
 
 ### Plus one
 
-Pass the `--plus` option to add one day to the passed-in date or `--plus n` to add `n` days. The date will be completed as usual and the given number of days added, but adds and repeats will be left untouched and unapplied.
+Pass the `--plus` option to add one day to the passed-in date or `--plus n` to add `n` days. The date will be completed as usual and the given number of days added, but adds and repeats will be left untouched and unapplied. `n` can be negative.
 
 ## Requirements
 
