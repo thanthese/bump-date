@@ -61,17 +61,18 @@ bd._datePattern =
             "", "x");
 
 bd.bumpText = function(text, today, plus) {
-    bd.log("Bumping text \"" + text + "\" for date " + today);
+    bd.log("");
+    bd.log("Bumping text \"" + text + "\" for date " + today + " with plus of " + plus);
     var m = XRegExp.exec(text, bd._datePattern);
     if (m[0] === "") {
         bd.log("No date found in user input, using today (maybe with plus) as date.");
-        var newDate = plus > 0 ? bd.date.addDays(today, plus) : today;
+        var newDate = plus !== 0 ? bd.date.addDays(today, plus) : today;
         return bd._prettyFormatDate(newDate) + " " + text;
     }
     try {
         var addStr = plus > 0 ? (m.addDef || "") : "";
         var repeatStr = m.repeatDef || "";
-        if(plus > 0) bd._spoofAdd(m, plus);
+        if(plus !== 0) bd._spoofAdd(m, plus);
         var bumpedDate = bd._bumpDate(m, today);
         var prettyDate = bd._prettyFormatDate(bumpedDate) + addStr + repeatStr;
         return text.replace(/^\S+/, prettyDate);
@@ -90,6 +91,7 @@ bd._spoofAdd = function(m, plus) {
     m.addWeek = undefined;
     m.addDay = plus;
     m.addDef = "+" + m.addDay;
+    bd.log("Spoofed m.addDay to " + m.addDef);
 };
 
 bd._bumpDate = function(m, today) {
@@ -474,7 +476,8 @@ var plusTestCases = [
     ["15.06.10w:+4d", "15.06.12f:+4d", 2],
     ["15.06.10w->4d", "15.06.12f->4d", 2],
     ["15.06.10w+2d", "15.06.12f+2d", 2],
-    ["test", "13.04.01m test", 2]
+    ["test", "13.04.01m test", 2],
+    ["15.06.10w", "15.06.09t", -1]
 ];
 
 bd.test.runTests = function() {
@@ -487,7 +490,7 @@ bd.test.runTests = function() {
         var before = tc[testcase][1];
         var expected = tc[testcase][2];
         try {
-            log.equal(bd.bumpText(before, bd.test.testDate, false),
+            log.equal(bd.bumpText(before, bd.test.testDate, 0),
                       expected, group, before);
         } catch (e) {
             console.log("Failed on '" + group + "', '" + before + "'");
