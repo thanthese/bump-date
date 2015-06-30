@@ -23,7 +23,7 @@ Pass the `--plus` option to add one day to the passed-in date or `--plus n` to a
 ## Requirements
 
 - [node](http://nodejs.org/)
-- [xregexp](http://xregexp.com/) node package
+- [xregexp](http://xregexp.com/) node package (`npm install xregexp`, with optional global flag `-g`)
 
 There aren't any installation instructions. It's just a single `.js` file -- download it and run it with `node bump-date.js`.
 
