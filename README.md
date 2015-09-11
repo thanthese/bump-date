@@ -1,3 +1,9 @@
+# Note: Deprecated
+
+This project has been deprecated in favor of [tickler-dates](https://github.com/thanthese/tickler-dates).
+
+The behavior is almost-exactly-but-not-quite the same, though how things work behind the scenes is markedly different. The biggest difference is that the newer version is maintained.
+
 ## Purpose
 
 Command line tool for completing and repeating dates in a compact, human-readable format. Basically a big ball of "Do what I mean" for dates.
@@ -23,7 +29,7 @@ Pass the `--plus` option to add one day to the passed-in date or `--plus n` to a
 ## Requirements
 
 - [node](http://nodejs.org/)
-- [xregexp](http://xregexp.com/) node package
+- [xregexp](http://xregexp.com/) node package (`sudo npm -g install xregexp`)
 
 There aren't any installation instructions. It's just a single `.js` file -- download it and run it with `node bump-date.js`.
 
